@@ -1,0 +1,1444 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#3347D1">
+<meta name="description" content="Lernwerk: Zusammenfassung, Lernkarten und Quiz aus eigenen Texten">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lernwerk">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Lernwerk</title>
+<style>
+:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+html, body { min-height: 100%; }
+body { margin: 0; font: 14px system-ui, sans-serif; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<style>
+/* Layout: Kopfzeile oben, eine Ansicht pro Bildschirm, feste Tab-Leiste unten mit großen Touch-Flächen. */
+:root {
+  --bg: #F2F4F8;
+  --surface: #FFFFFF;
+  --ink: #141B2E;
+  --muted: #5A6580;
+  --line: #DCE1EC;
+  --accent: #3347D1;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E4E8FB;
+  --good: #1E7A45;
+  --good-soft: #DDF3E6;
+  --bad: #B72E2E;
+  --bad-soft: #FBE3E3;
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1424; --surface: #181F35; --ink: #E8ECF8; --muted: #9AA5C4; --line: #2A3350;
+    --accent: #8E9CFF; --accent-ink: #0F1424; --accent-soft: #232C55;
+    --good: #5CD08B; --good-soft: #153A28; --bad: #FF8A8A; --bad-soft: #4A2025;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1424; --surface: #181F35; --ink: #E8ECF8; --muted: #9AA5C4; --line: #2A3350;
+  --accent: #8E9CFF; --accent-ink: #0F1424; --accent-soft: #232C55;
+  --good: #5CD08B; --good-soft: #153A28; --bad: #FF8A8A; --bad-soft: #4A2025;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.55;
+  padding-block: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-tap-highlight-color: transparent;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--bg);
+}
+.wrap { max-width: 560px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; margin: 0; text-wrap: balance; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, textarea:focus-visible, input:focus-visible, summary:focus-visible {
+  outline: 3px solid var(--accent); outline-offset: 2px;
+}
+
+/* Kopfzeile */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--bg); padding-block: 12px 10px;
+}
+.top .wrap { display: flex; align-items: center; gap: 10px; }
+.brand { flex: 1; min-width: 0; }
+.brand small { display: block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.brand h1 { font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.btn {
+  min-height: 52px; padding: 0 20px; border-radius: 14px; border: 1.5px solid var(--line);
+  background: var(--surface); font-weight: 600; font-size: 16px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-align: center;
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.good { background: var(--good-soft); border-color: var(--good); color: var(--good); }
+.btn.bad { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+.btn.block { width: 100%; }
+.btn.small { min-height: 44px; padding: 0 14px; font-size: 15px; }
+.btn[disabled] { opacity: .5; cursor: default; }
+
+main { padding-block: 8px calc(110px + env(safe-area-inset-bottom, 0px)); }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px; }
+.label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 10px; }
+.lead { font-size: 18px; line-height: 1.55; margin: 0; }
+.points { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.points li { display: grid; grid-template-columns: 10px 1fr; gap: 12px; align-items: start; }
+.points li::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--accent); margin-top: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: 14px; font-variant-numeric: tabular-nums; }
+.chipbtn { border: 0; cursor: pointer; min-height: 40px; font-family: inherit; text-align: left; }
+details summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; align-items: center; }
+details p { white-space: pre-line; margin: 8px 0 0; color: var(--muted); font-size: 15px; overflow-wrap: anywhere; }
+
+/* Fortschritt */
+.progress { height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.progress > i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width .3s; }
+.meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+/* Lernset-Leiste und Liste */
+.deckbar { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 8px 8px 8px 16px; }
+.deckbar .nm { flex: 1; min-width: 0; }
+.deckbar small { display: block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.deckbar strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.deckrow { display: flex; flex-direction: column; gap: 10px; border: 1.5px solid var(--line); border-radius: 16px; padding: 14px; background: var(--surface); }
+.deckrow.active { border-color: var(--accent); }
+.deckrow h3 { font-size: 18px; overflow-wrap: anywhere; }
+
+/* Lernkarten */
+.flip { perspective: 1200px; }
+.card {
+  position: relative; width: 100%; height: clamp(300px, 46vh, 420px); border: 0; padding: 0; background: none;
+  transform-style: preserve-3d; transition: transform .5s; text-align: left;
+}
+.card.is-flipped { transform: rotateY(180deg); }
+.face {
+  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  display: flex; flex-direction: column; justify-content: center; gap: 12px;
+  padding: 24px; border-radius: 22px; border: 1.5px solid var(--line); background: var(--surface);
+  overflow: auto; font-size: 20px; line-height: 1.45; white-space: pre-line;
+}
+.face .hint { font-size: 13px; color: var(--muted); letter-spacing: .04em; margin-top: auto; padding-top: 12px; }
+.face.back { transform: rotateY(180deg); background: var(--accent-soft); border-color: var(--accent); }
+.face.back .answer { font-family: var(--font-display); font-weight: 700; font-size: 26px; color: var(--accent); }
+.face.back .full { font-size: 16px; color: var(--ink); }
+.face.back .answer.long { font-family: var(--font-body); font-weight: 500; font-size: 19px; line-height: 1.5; color: var(--ink); }
+.kind { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; color: var(--muted); }
+.face.back .kind { color: var(--accent); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.two .btn { min-height: 60px; }
+
+/* Quiz */
+.q { font-family: var(--font-display); font-size: 22px; font-weight: 500; line-height: 1.35; white-space: pre-line; }
+.opts { display: flex; flex-direction: column; gap: 10px; }
+.opt {
+  min-height: 60px; padding: 14px 18px; border-radius: 16px; border: 1.5px solid var(--line);
+  background: var(--surface); text-align: left; font-weight: 500; font-size: 17px; line-height: 1.35;
+}
+.opt.good { background: var(--good-soft); border-color: var(--good); color: var(--good); font-weight: 600; }
+.opt.bad { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); font-weight: 600; }
+.opt.dim { opacity: .55; }
+.feedback { font-weight: 600; margin: 0; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+.score { font-family: var(--font-display); font-size: 64px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+
+/* Eingaben */
+textarea, input[type="text"], input[type="number"] {
+  width: 100%; font: inherit; font-size: 16px; color: var(--ink); background: var(--bg);
+  border: 1.5px solid var(--line); border-radius: 14px; padding: 14px;
+}
+textarea { min-height: 220px; resize: vertical; }
+input[type="text"], input[type="number"] { min-height: 52px; }
+.msg { margin: 0; font-size: 15px; color: var(--muted); overflow-wrap: anywhere; }
+.msg.err { color: var(--bad); font-weight: 600; }
+.setrow { display: flex; flex-direction: column; gap: 12px; }
+.setrow.active { border-color: var(--accent); }
+.setrow h3 { font-size: 18px; overflow-wrap: anywhere; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row .btn { flex: 1; }
+.empty { text-align: center; padding: 40px 16px; display: flex; flex-direction: column; gap: 16px; align-items: center; }
+.upl { position: relative; overflow: hidden; cursor: pointer; }
+.upl input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 0; }
+.upl:focus-within { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* Chat */
+.chat { display: flex; flex-direction: column; gap: 10px; }
+.bubble { max-width: 88%; padding: 12px 16px; border-radius: 18px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 16px; line-height: 1.5; }
+.bubble.me { align-self: flex-end; background: var(--accent); color: var(--accent-ink); border-bottom-right-radius: 6px; }
+.bubble.ai { align-self: flex-start; background: var(--surface); border: 1px solid var(--line); border-bottom-left-radius: 6px; }
+.composer { position: sticky; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); background: var(--bg); padding-block: 10px 4px; display: flex; flex-direction: column; gap: 10px; }
+
+/* Tab-Leiste */
+.tabs {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line);
+  padding: 10px max(16px, env(safe-area-inset-left, 0px)) calc(10px + env(safe-area-inset-bottom, 0px));
+}
+.tabs .wrap { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; }
+.tab {
+  min-height: 56px; border: 0; border-radius: 14px; background: none; font-weight: 600; font-size: 13px; color: var(--muted);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+}
+.tab svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tab[aria-current="true"] { background: var(--accent-soft); color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .card, .progress > i { transition: none; } }
+</style>
+
+<header class="top"><div class="wrap">
+  <div class="brand"><small>Lernwerk</small><h1 id="ttl">Thema</h1></div>
+  <button class="btn small" data-act="go-sets" type="button">Themen</button>
+  <button class="btn small primary" data-act="go-import" type="button">+ Neu</button>
+</div></header>
+
+<main><div class="wrap" id="view"></div></main>
+
+<nav class="tabs" aria-label="Lernmodi"><div class="wrap" id="tabs"></div></nav>
+
+<script>
+(function () {
+  'use strict';
+  const KEY = 'lernwerk.v1';
+  const MAX_CARDS = 100, MAX_QUIZ = 50;
+  const DOC_PREFIX = '[Dokument: ';
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const uid = () => 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const str = x => typeof x === 'string' ? x.trim() : '';
+  const clampN = (v, max, d) => { v = parseInt(v, 10); return isNaN(v) ? d : Math.max(1, Math.min(max, v)); };
+  const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
+
+  /* ---------- Beispiel-Thema ---------- */
+  function sampleTopic() {
+    const text = 'Das Sonnensystem entstand vor etwa 4,6 Milliarden Jahren aus einer rotierenden Gas- und Staubwolke. Die Sonne enthält 99,86 Prozent der gesamten Masse des Systems. Acht Planeten umkreisen die Sonne, Merkur ist ihr am nächsten und Neptun am weitesten entfernt. Licht von der Sonne braucht rund 8 Minuten, bis es die Erde erreicht. Die Venus ist mit etwa 465 Grad Celsius der heißeste Planet, weil ihre dichte Atmosphäre die Wärme einschließt. Der Mars wirkt rot, weil sein Staub viel Eisenoxid enthält, also Rost. Jupiter ist der größte Planet und hat mehr als den elffachen Durchmesser der Erde. Saturn ist für seine Ringe aus Eis- und Gesteinsbrocken bekannt. Zwischen Mars und Jupiter liegt der Asteroidengürtel. Pluto gilt seit 2006 als Zwergplanet.';
+    const deckA = {
+      id: uid(), name: 'Überblick', created: Date.now(), wish: '', known: {}, best: null,
+      cards: [
+        { kind: 'frage', q: 'Warum ist die Venus heißer als der sonnennähere Merkur?', a: 'Ihre sehr dichte Atmosphäre schließt die Wärme ein (extremer Treibhauseffekt). Merkur hat kaum Atmosphäre und gibt seine Wärme wieder ab.', full: '' },
+        { kind: 'ereignis', dir: 'danach', q: 'Vor etwa 4,6 Milliarden Jahren beginnt eine rotierende Gas- und Staubwolke zusammenzufallen.', a: 'Im Zentrum verdichtet sich die Sonne. In der abgeflachten Scheibe um sie herum ballen sich Staub und Gas zu den Planeten zusammen.', full: '' },
+        { kind: 'frage', q: 'Warum bildet sich zwischen Mars und Jupiter kein Planet, sondern ein Asteroidengürtel?', a: 'Jupiters starke Schwerkraft stört die Bahnen der Gesteinsbrocken. Sie stoßen eher zusammen und zerbrechen, als zu einem Körper zu verklumpen.', full: '' },
+        { kind: 'ereignis', dir: 'davor', q: 'Im Zentrum der rotierenden Scheibe verdichtet sich die Sonne.', a: 'Davor ist die rotierende Gas- und Staubwolke unter ihrer eigenen Schwerkraft zusammengefallen.', full: '' },
+        { kind: 'ereignis', dir: 'danach', q: '2006 beschließt die Internationale Astronomische Union eine neue Definition für Planeten.', a: 'Pluto hat seine Umlaufbahn nicht von anderen Objekten freigeräumt und gilt seither als Zwergplanet.', full: '' },
+        { kind: 'frage', q: 'Wie lange braucht Sonnenlicht bis zur Erde und was bedeutet das?', a: 'Rund 8 Minuten. Wir sehen die Sonne immer so, wie sie vor etwa 8 Minuten war.', full: '' },
+        { kind: 'frage', q: 'Warum bestimmt die Sonne das ganze Sonnensystem?', a: 'Sie enthält 99,86 % der Masse. Ihre Schwerkraft hält alle Planeten auf ihren Bahnen.', full: '' },
+        { kind: 'frage', q: 'Was unterscheidet die inneren von den äußeren Planeten?', a: 'Die inneren (Merkur bis Mars) sind klein und felsig. Die äußeren (Jupiter bis Neptun) sind deutlich größere Gas- bzw. Eisriesen.', full: '' },
+        { kind: 'frage', q: 'Warum erscheint der Mars rot?', a: 'Eisenoxid (Rost) im Oberflächenstaub reflektiert vor allem rotes Licht.', full: '' },
+        { kind: 'vergleich', q: 'Jupiter und Saturn im Vergleich', a: 'Beide sind Gasriesen. Jupiter ist der größte Planet (über elffacher Erddurchmesser), Saturn fällt vor allem durch sein Ringsystem aus Eis- und Gesteinsbrocken auf.', full: '' }
+      ],
+      quiz: [
+        { q: 'Warum ist die Venus heißer als der Merkur, obwohl sie weiter von der Sonne entfernt ist?', options: ['Ihre dichte Atmosphäre schließt die Wärme ein', 'Sie dreht sich schneller um die eigene Achse', 'Sie wird zusätzlich von Jupiters Schwerkraft aufgeheizt', 'Sie besitzt einen glühenden Kern dicht unter der Oberfläche'], answer: 0, why: 'Die dichte Atmosphäre wirkt wie ein Treibhaus. Nähe zur Sonne allein entscheidet nicht über die Oberflächentemperatur.' },
+        { q: 'Was geschah nach dem Kollaps der Gas- und Staubwolke, aus der das Sonnensystem entstand?', options: ['Die Planeten entstanden zuerst, die Sonne zündete später', 'Die Sonne bildete sich im Zentrum, aus der Scheibe ringsum formten sich die Planeten', 'Die Wolke zerfiel in viele gleich große Sterne', 'Die Planeten wurden später von der Sonne eingefangen'], answer: 1, why: 'Der Großteil der Masse sammelte sich im Zentrum zur Sonne, der Rest bildete eine Scheibe, in der die Planeten wuchsen.' },
+        { q: 'Warum gilt Pluto seit 2006 als Zwergplanet?', options: ['Er kreist nicht um die Sonne', 'Er hat seine Umlaufbahn nicht von anderen Objekten freigeräumt', 'Er besteht ausschließlich aus Eis', 'Er wurde erst nach dem Jahr 2000 entdeckt'], answer: 1, why: 'Die neue Definition verlangt unter anderem, dass ein Planet seine Bahn dominiert. Pluto teilt sich seine mit vielen anderen Objekten.' },
+        { q: 'Was bedeutet es, dass Sonnenlicht rund 8 Minuten zur Erde braucht?', options: ['Wir sehen die Sonne so, wie sie vor etwa 8 Minuten war', 'Die Erde umrundet die Sonne in 8 Minuten', 'Die Sonne ist nur 8 Minuten pro Tag sichtbar', 'Das Licht wird auf dem Weg 8 Minuten lang gebremst'], answer: 0, why: 'Licht hat eine endliche Geschwindigkeit. Was wir sehen, ist immer ein Bild aus der Vergangenheit.' },
+        { q: 'Welche Aussage über den Asteroidengürtel stimmt?', options: ['Er liegt hinter Neptun und besteht aus Gasen', 'Er ist der Rest eines Planeten, den die Sonne zerrissen hat', 'Er liegt zwischen Mars und Jupiter, wo Jupiters Schwerkraft die Bildung eines Planeten verhindert', 'Er umkreist die Erde in der Bahn des Mondes'], answer: 2, why: 'Jupiters Schwerkraft stört die Bahnen der Brocken, sodass sie nicht zu einem Planeten verklumpen.' },
+        { q: 'Was haben Jupiter und Saturn gemeinsam, das sie von der Erde unterscheidet?', options: ['Sie sind klein und felsig', 'Sie bestehen überwiegend aus Gas und haben keine feste Oberfläche', 'Sie umkreisen die Sonne in Gegenrichtung', 'Sie besitzen keine Monde'], answer: 1, why: 'Beide sind Gasriesen. Die Erde ist ein felsiger innerer Planet mit fester Oberfläche.' },
+        { q: 'Warum erscheint der Mars rötlich?', options: ['Rote Wolken aus Schwefel verdecken die Oberfläche', 'Das Sonnenlicht wird an Eis rot gefärbt', 'Eisenoxid im Oberflächenstaub reflektiert vor allem rotes Licht', 'Ein roter Ozean bedeckt weite Teile der Oberfläche'], answer: 2, why: 'Eisenoxid ist im Alltag als Rost bekannt und färbt den Marsstaub.' }
+      ]
+    };
+    const deckB = {
+      id: uid(), name: 'Planeten im Detail', created: Date.now(), wish: 'Nur Fakten zu einzelnen Planeten', known: {}, best: null,
+      cards: [
+        { kind: 'frage', q: 'Welcher Planet ist der Sonne am nächsten und welcher am weitesten entfernt?', a: 'Merkur ist der Sonne am nächsten, Neptun am weitesten entfernt.', full: '' },
+        { kind: 'frage', q: 'Wie groß ist Jupiter im Vergleich zur Erde?', a: 'Sein Durchmesser beträgt mehr als das Elffache des Erddurchmessers.', full: '' },
+        { kind: 'frage', q: 'Woraus bestehen die Ringe des Saturn?', a: 'Aus Eis- und Gesteinsbrocken.', full: '' },
+        { kind: 'frage', q: 'Warum erreicht die Venus etwa 465 °C?', a: 'Ihre dichte Atmosphäre schließt die Wärme ein, deshalb ist sie der heißeste Planet.', full: '' }
+      ],
+      quiz: [
+        { q: 'Welche Reihenfolge nennt die vier sonnennächsten Planeten von innen nach außen?', options: ['Merkur, Venus, Erde, Mars', 'Merkur, Erde, Venus, Mars', 'Venus, Merkur, Erde, Mars', 'Merkur, Venus, Mars, Erde'], answer: 0, why: 'Von innen nach außen folgen Merkur, Venus, Erde und Mars.' },
+        { q: 'Welche Aussage über Jupiter stimmt?', options: ['Sein Durchmesser ist mehr als elfmal so groß wie der der Erde', 'Er ist etwa so groß wie die Erde', 'Er ist kleiner als Saturn', 'Er ist der Sonne am nächsten'], answer: 0, why: 'Jupiter ist der größte Planet des Sonnensystems.' },
+        { q: 'Woraus bestehen die Ringe des Saturn?', options: ['Aus Gasen und Wolken', 'Aus Eis- und Gesteinsbrocken', 'Aus erstarrter Lava', 'Aus Staub der Sonne'], answer: 1, why: 'Die Ringe sind ein Schwarm aus vielen kleinen Eis- und Gesteinsbrocken.' }
+      ]
+    };
+    return {
+      id: uid(), v: 4, rev: 2, title: 'Sonnensystem (Beispiel)', created: Date.now(), text: text, docs: ['Beispieltext'],
+      summary: {
+        short: 'Das Sonnensystem entstand vor etwa 4,6 Milliarden Jahren. Im Zentrum steht die Sonne, um die acht Planeten, ein Asteroidengürtel und Zwergplaneten wie Pluto kreisen.',
+        points: [
+          'Entstehung vor etwa 4,6 Milliarden Jahren aus einer Gas- und Staubwolke.',
+          'Die Sonne vereint 99,86 % der Masse des gesamten Systems.',
+          'Acht Planeten: Merkur ist der Sonne am nächsten, Neptun am weitesten entfernt.',
+          'Sonnenlicht braucht rund 8 Minuten bis zur Erde.',
+          'Venus ist mit etwa 465 °C der heißeste Planet, Jupiter der größte.',
+          'Der Mars ist rot durch Eisenoxid (Rost) im Staub.',
+          'Pluto ist seit 2006 ein Zwergplanet.'
+        ]
+      },
+      decks: [deckA, deckB], deckId: deckA.id, chat: []
+    };
+  }
+
+  /* ---------- Speicher ---------- */
+  let S = null;
+  function load() {
+    try { const raw = localStorage.getItem(KEY); if (raw) { const p = JSON.parse(raw); if (p && Array.isArray(p.sets)) return p; } } catch (e) {}
+    return null;
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+  function migrate() {
+    let changed = false;
+    S.sets = S.sets.map(function (s) {
+      const untouched = Array.isArray(s.decks) && s.decks.length === 2 && s.decks[0].name === 'Überblick' && (s.docs || []).length <= 1 && !(s.chat || []).length;
+      if (s.title === 'Sonnensystem (Beispiel)' && ((s.v || 0) < 3 || ((s.rev || 0) < 2 && untouched))) { const n = sampleTopic(); n.id = s.id; changed = true; return n; }
+      if (!Array.isArray(s.decks)) {
+        const d = { id: uid(), name: 'Lernset 1', created: s.created || Date.now(), wish: s.wish || '', cards: s.cards || [], quiz: s.quiz || [], known: s.known || {}, best: s.best == null ? null : s.best };
+        s.decks = [d]; s.deckId = d.id;
+        delete s.cards; delete s.quiz; delete s.known; delete s.best; delete s.wish;
+        changed = true;
+      }
+      if (!s.docs) s.docs = [];
+      if (!s.chat) s.chat = [];
+      if (!s.summary) s.summary = { short: '', points: [] };
+      s.v = 4;
+      return s;
+    });
+    if (!S.sets.some(s => s.id === S.activeId)) S.activeId = S.sets.length ? S.sets[0].id : null;
+    if (changed) save();
+  }
+  S = load();
+  if (!S) { const sm = sampleTopic(); S = { sets: [sm], activeId: sm.id }; save(); }
+  migrate();
+
+  /* ---------- Zustand ---------- */
+  const newForm = () => ({ name: '', wish: '', nCards: 14, nQuiz: 10 });
+  const ui = {
+    view: 'study', tab: 'summary',
+    draft: { title: '', text: '', docs: [], msg: '', err: false },
+    form: newForm(),
+    build: { busy: false, msg: '', err: false, ctl: null, stop: false },
+    picked: {}, bkMsg: '', bkErr: false, delId: null, delDeckId: null, flash: '', docMsg: '', docErr: false, sumBusy: false, img: null,
+    chat: { busy: false, partial: '', err: '', draft: '', ctl: null }
+  };
+  let smp = null, fc = null, qz = null;
+  const active = () => S.sets.find(s => s.id === S.activeId) || null;
+  function deckOf(set) {
+    let d = set.decks.find(x => x.id === set.deckId);
+    if (!d && set.decks.length) { d = set.decks[0]; set.deckId = d.id; }
+    return d || null;
+  }
+
+  /* ---------- Lokale Erstellung (ohne Claude) ---------- */
+  const STOP = {};
+  ('der die das und ist sind war wird werden ein eine einer einem einen eines nicht auch mit von zu auf für den dem des im in an als wie aber oder wenn dass sich sie wir ihr sein seine ihre ihren dieser diese dieses diesem diesen nach bei aus über unter durch gegen noch nur schon sehr mehr viel viele wurde wurden hat haben hatte kann können man dann damit dabei dort hier gibt etwa jedoch sowie sowohl zwischen während weil bereits immer jeder jede jedes also seit bis um vor ohne welche welcher andere anderen ihrer einige alle allen kein keine').split(' ').forEach(w => { STOP[w] = 1; });
+  function sentencesOf(text) {
+    const out = [];
+    String(text).replace(/\r/g, '').split('\n').forEach(line => {
+      let t = line.replace(/[*`]|__/g, '').trim();
+      if (!t) { out.push('¶'); return; }
+      const m = /^(#{1,6}\s+|[-*•]\s+|\d+[.)]\s+|>\s+)/.exec(t);
+      if (m) { t = t.slice(m[0].length); if (!/[.!?:]$/.test(t)) t += '.'; out.push('¶' + t + '¶'); } else out.push(t);
+    });
+    const res = [];
+    out.join(' ').split('¶').forEach(chunk => {
+      chunk.split(/(?<=[.!?])\s+/).forEach(s => {
+        s = s.replace(/\s+/g, ' ').trim();
+        if (s.length >= 35 && s.length <= 260 && s.split(' ').length >= 6) res.push(s);
+      });
+    });
+    return res;
+  }
+  const wordsOf = s => s.match(/[A-Za-zÄÖÜäöüß-]{4,}/g) || [];
+  const ARTICLES = new Set('der die das ein eine einer einem einen eines dem den des er sie es dieser diese dieses jede jeder jedes sein seine seiner ihre ihr ihrer'.split(' '));
+  const VERBS = new Set(('ist sind war waren wird werden wurde wurden hat haben hatte hatten kann können konnte konnten muss müssen soll sollen darf dürfen gilt gelten bleibt bleiben wirkt wirken liegt liegen entsteht entstehen entstand braucht brauchen benötigt benötigen enthält enthalten bildet bilden bedeutet bedeuten zeigt zeigen führt führen dient dienen besteht bestehen befindet befinden entspricht erreicht erreichen dauert dauern kreist kreisen umkreist umkreisen gibt scheint scheinen erscheint erscheinen fällt fallen steigt steigen sinkt sinken wächst wachsen schützt schützen verändert verändern entwickelt entwickeln trägt tragen nutzt nutzen beeinflusst beeinflussen ermöglicht ermöglichen verhindert verhindern bewegt bewegen dreht drehen').split(' '));
+  const SUPER = /\b(?:der|die|das|am)\s+(?:[a-zäöüß]+\s+)?([a-zäöüß]{3,}(?:[sß]te|[sß]ten|[sß]ter|[sß]tes))(?![a-zäöüß])/i;
+  const PREPS = new Set('bei in im an auf mit durch nach vor über unter zu zur zum aus von für seit während wegen dank trotz um gegen ohne'.split(' '));
+  const UNIT = /^(prozent|milliarden|millionen|jahre|jahren|minuten|sekunden|stunden|grad|celsius|kilometer|meter)$/i;
+  const SUPER_SKIP = /^(meist|erst|letzt|nächst|anderst|sonst)/i;
+  const DEF = /^((?:(?:Der|Die|Das|Ein|Eine)\s+)?[A-ZÄÖÜ][\wäöüßÄÖÜ-]*(?:\s+[A-ZÄÖÜ][\wäöüßÄÖÜ-]*)?)\s+(ist|sind|war|waren)\s+(.+)$/;
+  const PRIO = { cause: 5, qa: 4, ident: 4, def: 3, year: 3, num: 2, cloze: 1 };
+  const lc1 = s => { const w = s.split(' ')[0].toLowerCase(); return (ARTICLES.has(w) || PREPS.has(w)) ? s.charAt(0).toLowerCase() + s.slice(1) : s; };
+  const uc1 = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const blankOut = (s, w) => {
+    const re = new RegExp('(?<![A-Za-zÄÖÜäöüß0-9])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![A-Za-zÄÖÜäöüß0-9])', 'g');
+    if (re.test(s)) { re.lastIndex = 0; return s.replace(re, '_____'); }
+    const i = s.indexOf(w); return i < 0 ? s : s.slice(0, i) + '_____' + s.slice(i + w.length);
+  };
+  const okSubj = x => !/^(Sie|Er|Es|Dies|Dieses|Dieser|Diese|Man|Das|Der|Die|Dort|Dabei|Hier)$/.test(x);
+  const ANAPH = /^(Sie|Er|Es|Dies|Dieser|Diese|Dieses|Dort|Dabei|Dadurch|Deshalb|Daher|Außerdem|Zudem|Dann|Danach|Auch|Ebenso|Ihr|Ihre|Ihren|Sein|Seine|Dafür|Damit|Darum|Hier|So)\s/;
+  const NUM_RE = /(?<![\d.,])(\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+(?:,\d+)?)(?![\d])/g;
+  const isYear = n => /^(1\d{3}|20\d{2})$/.test(n);
+
+  function whyQuestion(main, qw) {
+    qw = qw || 'Warum';
+    const t = main.split(' ');
+    for (let i = 1; i <= 6 && i < t.length; i++) {
+      if (VERBS.has(t[i].toLowerCase())) {
+        const subj = lc1(t.slice(0, i).join(' ')), rest = t.slice(i + 1).join(' ');
+        return qw + ' ' + t[i].toLowerCase() + ' ' + subj + (rest ? ' ' + rest : '') + '?';
+      }
+    }
+    for (let i = 1; i <= 3 && i < t.length; i++) {
+      const w = t[i], k = w.toLowerCase();
+      if (w.charAt(0) === k.charAt(0) && !STOP[k] && !ARTICLES.has(k) && !PREPS.has(k) && w.length >= 4 && /(t|en)$/.test(k)) {
+        const subj = lc1(t.slice(0, i).join(' ')), rest = t.slice(i + 1).join(' ');
+        return qw + ' ' + k + ' ' + subj + (rest ? ' ' + rest : '') + '?';
+      }
+    }
+    return (qw === 'Warum' ? 'Was ist der Grund für diese Aussage?' : 'Wozu geschieht das?') + '\n„' + main + '“';
+  }
+  function numberDistractors(str, sentence) {
+    const dec = (str.split(',')[1] || '').length, thousands = /\./.test(str);
+    const val = parseFloat(str.replace(/\./g, '').replace(',', '.'));
+    if (!isFinite(val) || val <= 0) return [];
+    const fmt = v => {
+      const parts = v.toFixed(dec).split('.');
+      const ip = thousands ? parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.') : parts[0];
+      return parts[1] ? ip + ',' + parts[1] : ip;
+    };
+    let cands;
+    if (dec === 0 && val <= 20) cands = [val + 1, val + 2, val - 1, val - 2, val * 2, val + 5, val + 10];
+    else cands = [0.5, 2, 1.5, 0.75, 0.25, 4, 10, 0.1, 1.2, 0.8].map(f => val * f);
+    const pct = /Prozent|%/.test(sentence);
+    const out = [];
+    shuffle(cands).forEach(c => {
+      if (c <= 0 || (pct && c > 100)) return;
+      const f = fmt(dec === 0 ? Math.round(c) : c);
+      if (f !== str && out.indexOf(f) < 0) out.push(f);
+    });
+    return out.slice(0, 3);
+  }
+  function yearDistractors(y) {
+    const v = parseInt(y, 10), out = [];
+    shuffle([-5, 5, -10, 10, -20, 20, -50, 50, -100, 100]).forEach(o => { const c = v + o; if (c > 0 && c <= 2030 && out.length < 3) out.push(String(c)); });
+    return out;
+  }
+  function bestCloze(s, freq) {
+    const cands = []; let first = true;
+    (s.match(/[A-Za-zÄÖÜäöüß-]{5,}|\d[\d.,]*\d|\d/g) || []).forEach(w => {
+      const isNum = /^\d/.test(w), k = w.toLowerCase();
+      if (!isNum && STOP[k]) { first = false; return; }
+      const cap = !isNum && /^[A-ZÄÖÜ]/.test(w);
+      let sc = (freq[k] || 0) + (cap && !first ? 2 : 0) + (isNum ? 3 : 0) + Math.min(w.length, 12) / 12;
+      if (!isNum && !cap && (freq[k] || 0) < 2) sc -= 2;
+      cands.push({ w: w, sc: sc, num: isNum, noun: cap });
+      first = false;
+    });
+    const strong = cands.filter(c => c.num || /^[A-ZÄÖÜ]/.test(c.w));
+    const use = strong.length >= 2 ? strong : cands;
+    use.sort((a, b) => b.sc - a.sc);
+    return use;
+  }
+  function titleOf(text, sents) {
+    const lines = String(text).split('\n').map(x => x.trim()).filter(x => x && x.indexOf(DOC_PREFIX) !== 0);
+    const m = lines.length ? /^#{0,6}\s*(.{3,60})$/.exec(lines[0]) : null;
+    if (m && !/[.!?:;]$/.test(m[1])) return m[1].replace(/[*_`]/g, '').trim();
+    const cap = (sents[0].match(/[A-ZÄÖÜ][a-zäöüß-]{4,}/g) || []).find(w => !STOP[w.toLowerCase()]);
+    if (cap) return cap;
+    return sents[0].split(' ').slice(0, 4).join(' ').replace(/[.,;:!?]+$/, '');
+  }
+
+
+  /* ---------- Vokabeltabellen ---------- */
+  const HEAD_RE = /^(deutsch|german|englisch|english|französisch|french|spanisch|spanish|latein|latin|italienisch|italian|wort|vokabel|vokabeln|begriff|übersetzung|translation|bedeutung|lektion|unit|nr\.?|seite|sprache|beispiel|example)$/i;
+  function splitCsv(line, d) {
+    const out = []; let cur = '', q = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (q) { if (ch === '"') { if (line[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch; }
+      else if (ch === '"' && !cur.trim()) { q = true; cur = ''; }
+      else if (ch === d) { out.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    out.push(cur.trim()); return out;
+  }
+  const VOCAB_SPLITS = [
+    ['\t', l => l.split('\t').map(x => x.trim())],
+    [';', l => splitCsv(l, ';')],
+    ['|', l => l.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(x => x.trim())],
+    [' - ', l => { const m = /^(.+?)\s[-–—]\s(.+)$/.exec(l); return m ? [m[1].trim(), m[2].trim()] : [l]; }],
+    [' = ', l => { const m = /^(.+?)\s=\s(.+)$/.exec(l); return m ? [m[1].trim(), m[2].trim()] : [l]; }],
+    [',', l => splitCsv(l, ',')],
+    [':', l => { const m = /^([^:]+):\s*(.+)$/.exec(l); return m ? [m[1].trim(), m[2].trim()] : [l]; }]
+  ];
+  const shortCell = c => c && c.length <= 60 && c.split(/\s+/).length <= 6;
+  // Erkennt eine Tabelle mit Wort und Übersetzung pro Zeile. Gibt null zurück, wenn der Text keine ist.
+  function parseVocab(text) {
+    const lines = String(text || '').replace(/\r/g, '').split('\n').map(x => x.trim()).filter(x => x && x.indexOf(DOC_PREFIX) !== 0 && !/^[\s|:\-–—+=]+$/.test(x));
+    if (lines.length < 4) return null;
+    let best = null;
+    VOCAB_SPLITS.forEach(sp => {
+      const rows = lines.map(l => sp[1](l).filter((c, i, a) => c || i < 2)).filter(r => r.length >= 2 && shortCell(r[0]) && shortCell(r[1]));
+      if (!best || rows.length > best.length) best = rows;
+    });
+    if (!best || best.length < 4 || best.length < lines.length * 0.7) return null;
+    let rows = best, head = null;
+    if (rows[0].some(c => HEAD_RE.test(c))) { head = rows[0]; rows = rows.slice(1); }
+    const seen = {}, pairs = [];
+    rows.forEach(r => {
+      const a = r[0], b = r[1], k = a.toLowerCase();
+      if (!a || !b || seen[k] || a.toLowerCase() === b.toLowerCase()) return;
+      seen[k] = 1; pairs.push({ a: a, b: b, note: r[2] && shortCell(r[2]) ? r[2] : '' });
+    });
+    if (pairs.length < 4) return null;
+    return { pairs: pairs, head: head };
+  }
+  function vocabAnalyze(v, nameHint) {
+    const P = v.pairs, n = P.length;
+    const dirs = [];
+    P.forEach((p, i) => { dirs.push({ i: i, f: true }); });
+    P.forEach((p, i) => { dirs.push({ i: i, f: false }); });
+    const cards = dirs.slice(0, MAX_CARDS).map(d => {
+      const p = P[d.i], q = d.f ? p.a : p.b, a = d.f ? p.b : p.a;
+      return { kind: 'vokabel', q: q, a: a + (p.note ? '\n(' + p.note + ')' : ''), full: p.a + ' = ' + p.b };
+    });
+    const quiz = shuffle(dirs).slice(0, MAX_QUIZ).map(d => {
+      const p = P[d.i], q = d.f ? p.a : p.b, a = d.f ? p.b : p.a;
+      const pool = P.filter((x, j) => j !== d.i).map(x => d.f ? x.b : x.a).filter(x => x.toLowerCase() !== a.toLowerCase());
+      const uniq = pool.filter((x, j) => pool.indexOf(x) === j);
+      const near = uniq.map(x => ({ x: x, k: Math.abs(x.length - a.length) + Math.random() * 4 })).sort((u, w) => u.k - w.k).slice(0, 8).map(o => o.x);
+      const opts = shuffle(shuffle(near).slice(0, 3).concat([a]));
+      return { q: 'Welche Übersetzung passt zu „' + q + '“?', options: opts, answer: opts.indexOf(a), why: p.a + ' = ' + p.b };
+    });
+    const h = v.head && v.head.length >= 2 ? v.head[0] + ' / ' + v.head[1] : '';
+    return {
+      vocab: true, cards: cards, quiz: quiz,
+      title: h ? 'Vokabeln ' + h : (nameHint || 'Vokabeln'),
+      summary: { short: 'Vokabelliste mit ' + n + ' Einträgen. Jede Vokabel wird in beide Richtungen abgefragt.', points: P.slice(0, 8).map(p => p.a + ' = ' + p.b) },
+      note: 'Vokabeltabelle erkannt: ' + n + ' Wortpaare, daraus ' + cards.length + ' Karten und ' + quiz.length + ' Quizfragen (beide Richtungen).'
+    };
+  }
+
+  // Erzeugt Karten und Quiz nach festen Regeln: Fragen zu Definitionen, Gründen, Superlativen,
+  // Jahreszahlen und Zahlen, sonst Lückentexte.
+  function localAnalyze(text, nC, nQ) {
+    const voc = parseVocab(text); if (voc) return vocabAnalyze(voc);
+    const sents = sentencesOf(String(text).replace(/^\[Dokument: .*\]$/gm, ''));
+    if (sents.length < 3) return { error: 'Der Text ist zu kurz. Für ein Lernset brauche ich mindestens 3 vollständige Sätze.' };
+    const freq = {};
+    sents.forEach(s => wordsOf(s).forEach(w => { const k = w.toLowerCase(); if (!STOP[k]) freq[k] = (freq[k] || 0) + 1; }));
+    const scored = sents.map((s, i) => {
+      const ws = wordsOf(s).filter(w => !STOP[w.toLowerCase()]);
+      return { s: s, i: i, sc: ws.reduce((a, w) => a + freq[w.toLowerCase()], 0) / Math.sqrt(ws.length || 1) };
+    });
+    const maxSc = Math.max.apply(null, scored.map(x => x.sc)) || 1;
+
+    // Satz für Satz die passende Frageform finden
+    const items = sents.map((s, idx) => {
+      const body = s.replace(/[.!?]+$/, '');
+      const cl = bestCloze(s, freq);
+      const it = { s: s, idx: idx, type: 'cloze', cloze: cl[0] || null, cloze2: cl[1] || null };
+      let m = /^(.+?),\s*(weil|denn|da)\s+(.+)$/i.exec(body), q2;
+      const qa = (pool, q, a) => { it.type = 'qa'; it.pool = pool; it.q = q; it.a = a; };
+      if (m) { it.type = 'cause'; it.main = m[1]; it.reason = m[3]; it.q = whyQuestion(m[1]); }
+      else if ((m = /^(.+?),\s*(?:damit\s+(.+)|um\s+(.+\szu\s\S+))$/i.exec(body)) && m[1].split(' ').length <= 14) qa('purpose', whyQuestion(m[1], 'Wozu'), m[2] ? 'Damit ' + m[2] : 'Um ' + m[3]);
+      else {
+        m = DEF.exec(body);
+        if (m && !okSubj(m[1])) m = null;
+        const sup = m ? SUPER.exec(m[3]) : null;
+        if (m && sup && !SUPER_SKIP.test(sup[1])) { it.type = 'ident'; it.subject = m[1]; }
+        else if (m) { it.type = 'def'; it.subject = m[1]; it.verb = m[2]; it.pred = m[3]; }
+        else if ((q2 = /^([A-ZÄÖÜ][^,]{2,50}?)\s+(besteht|bestehen)\s+(aus\s+.+)$/.exec(body)) && okSubj(q2[1])) qa('comp', 'Woraus ' + q2[2] + ' ' + lc1(q2[1]) + '?', uc1(q2[3]));
+        else if ((q2 = /^((?:Zwischen|Hinter|Neben|Vor|Über|Unter|Auf|In|Im|Am|An)\s+[^,]{3,50}?)\s+(liegt|liegen|befindet sich|befinden sich)\s+(.+)$/.exec(body))) qa('where', 'Was ' + q2[2] + ' ' + q2[1].charAt(0).toLowerCase() + q2[1].slice(1) + '?', uc1(q2[3]));
+        else if ((q2 = /^([A-ZÄÖÜ][^,]{2,50}?)\s+(liegt|liegen|befindet sich|befinden sich)\s+((?:zwischen|hinter|neben|vor|über|unter|auf|in|im|am|an|bei|nahe)\s+.+)$/.exec(body)) && okSubj(q2[1])) qa('where', 'Wo ' + q2[2] + ' ' + lc1(q2[1]) + '?', uc1(q2[3]));
+        else if ((q2 = /^([A-ZÄÖÜ][^,]{2,50}?)\s+(dient|dienen)\s+(.+)$/.exec(body)) && okSubj(q2[1])) qa('serve', 'Wozu ' + q2[2] + ' ' + lc1(q2[1]) + '?', uc1(q2[3]));
+        else {
+          const years = body.match(/\b(1\d{3}|20\d{2})\b/);
+          const nums = (body.match(NUM_RE) || []).filter(n => !isYear(n));
+          if (years) { it.type = 'year'; it.value = years[1]; }
+          else if (nums.length) { it.type = 'num'; it.value = nums[0]; }
+        }
+      }
+      if ((it.type === 'cloze') && !it.cloze) it.type = 'none';
+      it.rank = (PRIO[it.type] || 0) * 10 + 10 * scored[idx].sc / maxSc - (ANAPH.test(s) ? 25 : 0);
+      return it;
+    }).filter(it => it.type !== 'none');
+
+    // Auswahlpools für falsche Antworten
+    const subjects = [], reasons = [], preds = [], words = [], nums = [], qaPool = {}, clauses = [];
+    sents.forEach(x => {
+      const t = x.replace(/[.!?]+$/, '').split(/,\s*/).pop().trim(), n = t.split(' ').length;
+      if (n >= 4 && n <= 12 && /^[a-zäöüß]/.test(t) && !/^(weil|denn|da|damit|dass|wobei|wodurch|bei|also|um|zu|und|oder|aber|sodass)\b/i.test(t)) clauses.push(t);
+    });
+    items.forEach(it => {
+      if (it.type === 'qa') (qaPool[it.pool] = qaPool[it.pool] || []).push(it.a);
+      if (it.subject && subjects.indexOf(it.subject) < 0) subjects.push(it.subject);
+      if (it.reason) reasons.push(it.reason);
+      if (it.pred) { const p = it.pred.trim(); if (p.length <= 110 && p.split(' ').length >= 3) { it.predShort = p; preds.push(p); } }
+      [it.cloze, it.cloze2].forEach(c => {
+        if (!c || UNIT.test(c.w)) return;
+        const pool = c.num ? nums : words;
+        if (pool.indexOf(c.w) < 0) pool.push(c.w);
+      });
+    });
+
+    const cardOf = it => {
+      const s = it.s;
+      if (it.type === 'cause') return { kind: 'frage', q: it.q, a: 'Weil ' + it.reason + '.', full: s };
+      if (it.type === 'qa') return { kind: 'frage', q: it.q, a: it.a + '.', full: s };
+      if (it.type === 'ident') return { kind: 'frage', q: 'Wer oder was ist gemeint?\n' + blankOut(s, it.subject), a: it.subject, full: s };
+      if (it.type === 'def') return { kind: 'frage', q: 'Was ' + it.verb + ' ' + lc1(it.subject) + '?', a: s, full: '' };
+      if (it.type === 'year') return { kind: 'luecke', q: 'Welche Jahreszahl fehlt?\n' + blankOut(s, it.value), a: it.value, full: s };
+      if (it.type === 'num') return { kind: 'luecke', q: 'Welche Zahl fehlt?\n' + blankOut(s, it.value), a: it.value, full: s };
+      return { kind: 'luecke', q: 'Ergänze die Lücke:\n' + blankOut(s, it.cloze.w), a: it.cloze.w, full: s };
+    };
+    const pickOthers = (pool, own, n, ctx) => {
+      const seen = {}; seen[own.toLowerCase()] = 1;
+      const cap = x => /^[A-ZÄÖÜ]/.test(x), suf = x => x.slice(-2).toLowerCase();
+      const fresh = pool.filter(x => { const k = x.toLowerCase(); if (seen[k]) return false; seen[k] = 1; return !(ctx && ctx.indexOf(x) >= 0); });
+      const score = x => Math.abs(x.length - own.length) + (cap(x) === cap(own) ? 0 : 6) + (suf(x) === suf(own) ? -2 : 0) + Math.random() * 3;
+      const out = fresh.map(x => ({ x: x, k: score(x) })).sort((a, b) => a.k - b.k).slice(0, n).map(o => o.x);
+      return out.length === n ? out : null;
+    };
+    const clozeQuiz = (it, c) => {
+      c = c || it.cloze;
+      if (!c) return null;
+      const d = pickOthers(c.num ? nums : words, c.w, 3, it.s); if (!d) return null;
+      const opts = shuffle(d.concat([c.w]));
+      return { q: (c.num ? 'Welche Zahl passt in die Lücke?\n' : 'Welcher Begriff passt in die Lücke?\n') + blankOut(it.s, c.w), options: opts, answer: opts.indexOf(c.w), why: it.s };
+    };
+    const quizOf = it => {
+      let q = null, right = null, d = null;
+      if (it.type === 'cause') { right = 'Weil ' + it.reason; d = pickOthers(reasons.concat(clauses), it.reason, 3, it.s); if (d) { d = d.map(x => 'Weil ' + x); q = it.q; } }
+      else if (it.type === 'qa') { right = it.a; d = pickOthers(qaPool[it.pool], it.a, 3); q = it.q; }
+      else if (it.type === 'ident') { right = it.subject; d = pickOthers(subjects, it.subject, 3); q = 'Wer oder was ist gemeint?\n' + blankOut(it.s, it.subject); }
+      else if (it.type === 'def' && it.predShort) { right = uc1(it.predShort); d = pickOthers(preds, it.predShort, 3, it.s); if (d) d = d.map(uc1); q = 'Was trifft auf ' + lc1(it.subject) + ' zu?'; }
+      else if (it.type === 'year') { right = it.value; d = yearDistractors(it.value); q = 'Welche Jahreszahl fehlt?\n' + blankOut(it.s, it.value); }
+      else if (it.type === 'num') { right = it.value; d = numberDistractors(it.value, it.s); q = 'Welche Zahl fehlt?\n' + blankOut(it.s, it.value); }
+      if (q && d && d.length === 3) {
+        const opts = shuffle(d.concat([right]));
+        return { q: q, options: opts, answer: opts.indexOf(right), why: it.s };
+      }
+      return clozeQuiz(it);
+    };
+
+    // Auswahl mit Vielfalt: pro Fragetyp sinkt die Punktzahl, damit nicht alles Lückentexte werden
+    const pickDiverse = n => {
+      const used = {}, out = [], pool = items.slice();
+      while (out.length < n && pool.length) {
+        let bi = 0, bs = -1e9;
+        pool.forEach((it, i) => { const sc = it.rank - (used[it.type] || 0) * 7; if (sc > bs) { bs = sc; bi = i; } });
+        const it = pool.splice(bi, 1)[0]; used[it.type] = (used[it.type] || 0) + 1; out.push(it);
+      }
+      return out;
+    };
+    const order = pickDiverse(items.length);
+    const altOf = it => {
+      if (it.type === 'cloze') return it.cloze2;
+      if (it.type === 'num' || it.type === 'year') return [it.cloze, it.cloze2].filter(Boolean).find(c => c.w !== it.value) || null;
+      return it.cloze;
+    };
+    const revDef = it => it.type === 'def' && okSubj(it.subject) && it.pred.split(' ').length >= 4 && it.pred.toLowerCase().indexOf(it.subject.toLowerCase().replace(/^(der|die|das|ein|eine)\s+/, '')) < 0;
+    const revQ = it => 'Welcher Begriff wird so beschrieben?\n„' + uc1(it.pred) + '“';
+    const picked = order.slice(0, nC).map(it => ({ key: it.idx * 2, card: cardOf(it) }));
+    for (let i = 0; i < order.length && picked.length < nC; i++) {
+      const it = order[i], alt = altOf(it);
+      if (revDef(it)) picked.push({ key: it.idx * 2 + 1, card: { kind: 'frage', q: revQ(it), a: lc1(it.subject) === it.subject ? it.subject : it.subject, full: it.s } });
+      else if (alt) picked.push({ key: it.idx * 2 + 1, card: { kind: 'luecke', q: 'Ergänze die Lücke:\n' + blankOut(it.s, alt.w), a: alt.w, full: it.s } });
+    }
+    const cards = picked.sort((a, b) => a.key - b.key).map(x => x.card);
+    const quizItems = [], seenQ = {};
+    const addQuiz = (idx, qq) => { if (qq && !seenQ[qq.q]) { seenQ[qq.q] = 1; quizItems.push({ idx: idx, q: qq }); } };
+    for (let i = 0; i < order.length && quizItems.length < nQ; i++) addQuiz(order[i].idx, quizOf(order[i]));
+    for (let i = 0; i < order.length && quizItems.length < nQ; i++) {
+      const it = order[i];
+      if (revDef(it)) { const d = pickOthers(subjects, it.subject, 3); if (d) { const opts = shuffle(d.concat([it.subject])); addQuiz(it.idx + 0.5, { q: revQ(it), options: opts, answer: opts.indexOf(it.subject), why: it.s }); continue; } }
+      const alt = altOf(it); if (alt) addQuiz(it.idx + 0.5, clozeQuiz(it, alt));
+    }
+    const quiz = quizItems.sort((a, b) => a.idx - b.idx).map(x => x.q);
+    if (!cards.length) return { error: 'Aus diesem Text konnte ich keine Lernkarten ableiten. Versuche einen längeren Fließtext.' };
+
+    const top = scored.slice().sort((a, b) => b.sc - a.sc).slice(0, Math.min(7, sents.length)).sort((a, b) => a.i - b.i);
+    const best = top.find(x => x.i !== 0);
+    const short = sents[0] + (best ? ' ' + best.s : '');
+    return { title: titleOf(text, sents), summary: { short: short, points: top.map(x => x.s) }, cards: cards, quiz: quiz };
+  }
+
+  /* ---------- Erstellung mit Claude ---------- */
+  const SPEC_CARDS = 'Regeln für die Karten: Vorne steht eine Frage, eine Information oder ein Ereignis, hinten die Antwort, die Erklärung oder das, was darauf folgt. Etwa drei Viertel der Karten sind klassische Frage-und-Antwort-Karten ("frage"): vorne eine klare, konkrete Frage, hinten die Antwort. Nur das restliche Viertel nutzt die anderen Arten. Arten für "kind":"frage" (Frage vorne, Antwort in 1 bis 3 Sätzen hinten), "ereignis" (Ereignis vorne; hinten steht entweder das Ereignis davor oder das Ereignis danach. Gib dafür zusätzlich "dir":"davor" oder "dir":"danach" an und nutze beide Richtungen: "davor" fragt nach Vorgeschichte oder Auslöser, "danach" nach der Folge), "ursache" (Fakt oder Wirkung vorne, Grund oder Erklärung hinten), "info" (Information vorne, Bedeutung oder Zusammenhang hinten), "vergleich" (zwei Dinge vorne, Unterschied und Gemeinsamkeit hinten). Keine Lückentexte und keine Abfrage einzelner Wörter. Vorderseite höchstens 2 Sätze, Rückseite 1 bis 3 Sätze.\n\n';
+  const SPEC_QUIZ = 'Regeln für die Fragen: Echte Verständnisfragen, die Zusammenhänge, Gründe, Folgen, Vergleiche oder Anwendungen prüfen, zum Beispiel "Warum ...", "Was passiert, wenn ...", "Welche Aussage stimmt ...". Keine reine Abfrage einzelner Begriffe. Genau 4 Antwortmöglichkeiten als vollständige Aussagen ähnlicher Länge. Die falschen Antworten müssen plausibel klingen und typische Verwechslungen oder Denkfehler zum Thema aufgreifen. Genau eine Antwort ist richtig, "answer" ist ihr Index (0 bis 3) und wechselt von Frage zu Frage. "why" erklärt in 1 bis 2 Sätzen, warum die Antwort stimmt.\n\n';
+  const SPEC_COMMON = 'Nutze nur Inhalte aus dem Text und erfinde nichts dazu. Der Text kann aus mehreren Dokumenten bestehen, die mit [Dokument: Name] beginnen. Behandle sie als ein gemeinsames Thema und verbinde sie sinnvoll.\n\n';
+
+  function promptFor(kind, text, wish, n, have) {
+    const w = str(wish).slice(0, 600);
+    const wishTxt = w ? 'WUNSCH DER LERNENDEN PERSON. Er hat Vorrang bei Schwierigkeit, Schwerpunkt und Stil. Das JSON-Format, die Regeln für die Antworten und die Beschränkung auf den Inhalt des Textes bleiben bestehen:\n' + w + '\n\n' : '';
+    const haveTxt = have.length ? 'Diese Einträge gibt es schon. Wiederhole sie nicht und decke andere Teile des Textes ab:\n' + have.slice(-80).map(x => '- ' + x.q.replace(/\s+/g, ' ').slice(0, 120)).join('\n') + '\n\n' : '';
+    const head = kind === 'cards'
+      ? 'Du bist ein erfahrener Lehrer. Erstelle aus dem Lerntext Lernkarten in der Sprache des Textes. Antworte nur mit einem JSON-Objekt der Form {"cards":[{"kind":"frage","front":"...","back":"..."},{"kind":"ereignis","dir":"davor","front":"...","back":"..."}]}\n\nErstelle ' + n + ' neue Karten. Gibt der Text nicht genug Stoff her, erstelle weniger.\n\n' + SPEC_CARDS
+      : 'Du bist ein erfahrener Lehrer. Erstelle aus dem Lerntext ein Quiz in der Sprache des Textes. Antworte nur mit einem JSON-Objekt der Form {"quiz":[{"q":"...","options":["...","...","...","..."],"answer":0,"why":"..."}]}\n\nErstelle ' + n + ' neue Fragen. Gibt der Text nicht genug Stoff her, erstelle weniger.\n\n' + SPEC_QUIZ;
+    return head + SPEC_COMMON + wishTxt + haveTxt + 'TEXT:\n' + String(text).slice(0, 150000);
+  }
+  function normCards(d) {
+    const arr = Array.isArray(d) ? d : (d && Array.isArray(d.cards) ? d.cards : []);
+    const kinds = { frage: 1, ereignis: 1, ursache: 1, info: 1, vergleich: 1 };
+    return arr.filter(c => c && str(c.front) && str(c.back)).map(c => ({ kind: kinds[c.kind] ? c.kind : 'frage', dir: c.dir === 'davor' ? 'davor' : 'danach', q: str(c.front), a: str(c.back), full: '' }));
+  }
+  function normQuiz(d) {
+    const arr = Array.isArray(d) ? d : (d && Array.isArray(d.quiz) ? d.quiz : []);
+    return arr.filter(q => {
+      if (!q || !str(q.q) || !Array.isArray(q.options) || q.options.length !== 4) return false;
+      const o = q.options.map(str);
+      if (o.some(x => !x) || new Set(o).size !== 4) return false;
+      return Number.isInteger(q.answer) && q.answer >= 0 && q.answer < 4;
+    }).map(q => ({ q: str(q.q), options: q.options.map(str), answer: q.answer, why: str(q.why) }));
+  }
+  const normKey = s => String(s).toLowerCase().replace(/[^a-zäöüß0-9]+/g, ' ').trim();
+
+  function progress(m) {
+    ui.build.msg = m;
+    const el = document.getElementById('build-msg'); if (el) el.textContent = m;
+  }
+  function startJob(msg) { ui.build = { busy: true, msg: msg, err: false, ctl: new AbortController(), stop: false }; }
+
+  // Erzeugt Karten oder Fragen in Etappen. Wirft nie, liefert {items, err}.
+  async function genItems(kind, text, wish, total, o) {
+    const per = kind === 'cards' ? 20 : 10;
+    const out = [], seen = new Set();
+    let err = null, tries = 0, first = true;
+    const maxTries = Math.ceil(total / per) + 2;
+    try {
+      if (o.gate) await o.gate;
+      while (out.length < total && tries < maxTries && !ui.build.stop) {
+        tries++;
+        let batch;
+        try {
+          batch = await smp.json(promptFor(kind, text, wish, Math.min(per, total - out.length), out), { modelTier: 'default', cache: false, signal: ui.build.ctl.signal });
+        } catch (e) {
+          if (!(e && e.code === 'cancelled')) err = e;
+          break;
+        } finally {
+          if (first) { first = false; if (o.onFirst) o.onFirst(); }
+        }
+        let added = 0;
+        (kind === 'cards' ? normCards(batch) : normQuiz(batch)).forEach(it => {
+          const k = normKey(it.q);
+          if (!seen.has(k) && out.length < total) { seen.add(k); out.push(it); added++; }
+        });
+        if (o.onCount) o.onCount(out.length);
+        if (!added) break;
+      }
+    } catch (e) { err = err || e; }
+    if (first && o.onFirst) o.onFirst();
+    return { items: out, err: err };
+  }
+  async function aiSummary(text, signal) {
+    const d = await smp.json('Du bist ein erfahrener Lehrer. Fasse den Lerntext in der Sprache des Textes zusammen. Antworte nur mit einem JSON-Objekt der Form {"title":"Kurztitel mit höchstens 5 Wörtern","short":"Zusammenfassung in 2 bis 3 Sätzen","points":["5 bis 8 Kernaussagen als vollständige Sätze"]}. Der Text kann aus mehreren Dokumenten bestehen, die mit [Dokument: Name] beginnen. Fasse sie als ein gemeinsames Thema zusammen. Nutze nur Inhalte aus dem Text.\n\nTEXT:\n' + String(text).slice(0, 150000), { modelTier: 'default', cache: false, signal: signal });
+    const points = (d && Array.isArray(d.points) ? d.points : []).map(str).filter(Boolean);
+    if (!d || !points.length) throw { code: 'bad' };
+    return { title: str(d.title), short: str(d.short) || points[0], points: points };
+  }
+  async function buildAI(text, form, needSummary) {
+    const nC = clampN(form.nCards, MAX_CARDS, 14), nQ = clampN(form.nQuiz, MAX_QUIZ, 10);
+    const st = { c: 0, q: 0 };
+    const upd = () => progress('Claude arbeitet … Karten ' + st.c + ' von ' + nC + ', Fragen ' + st.q + ' von ' + nQ + '.');
+    upd();
+    let release; const gate = new Promise(r => { release = r; });
+    const cardsP = genItems('cards', text, form.wish, nC, { onFirst: release, onCount: n => { st.c = n; upd(); } });
+    const quizP = genItems('quiz', text, form.wish, nQ, { gate: gate, onCount: n => { st.q = n; upd(); } });
+    const sumP = needSummary ? gate.then(() => aiSummary(text, ui.build.ctl.signal)).catch(() => null) : Promise.resolve(null);
+    const r = await Promise.all([cardsP, quizP, sumP]);
+    const cr = r[0], qr = r[1], sm = r[2];
+    if (!cr.items.length || !qr.items.length) {
+      if (ui.build.stop) throw { code: 'cancelled' };
+      throw cr.err || qr.err || { code: 'bad' };
+    }
+    let summary = null, title = '';
+    if (needSummary) {
+      if (sm) { summary = { short: sm.short, points: sm.points }; title = sm.title; }
+      else { const loc = localAnalyze(text, 3, 3); summary = loc.summary || { short: '', points: [] }; title = loc.title || ''; }
+    }
+    const err = cr.err || qr.err;
+    let note = '';
+    if (cr.items.length < nC || qr.items.length < nQ) {
+      note = 'Erstellt: ' + plural(cr.items.length, 'Karte', 'Karten') + ' und ' + plural(qr.items.length, 'Frage', 'Fragen') + ' (gewünscht: ' + nC + ' und ' + nQ + '). ' +
+        (ui.build.stop ? 'Du hast vorzeitig beendet.' : err ? errMsg(err) : 'Mehr Stoff gibt der Text nicht her.');
+    }
+    return { summary: summary, title: title, cards: cr.items, quiz: qr.items, note: note };
+  }
+  function errMsg(err) {
+    const c = err && err.code;
+    if (c === 'not_granted' || c === 'sampling_disabled') return 'Du hast Claude für diese App nicht erlaubt. Ohne Erlaubnis kann ich keine Fragen schreiben.';
+    if (c === 'rate_limited') return 'Zu viele Anfragen oder dein Kontingent ist aufgebraucht. Versuche es später noch einmal.';
+    if (c === 'prompt_too_large') return 'Der Text ist zu lang. Teile ihn in kleinere Themen auf.';
+    if (c === 'invalid_json' || c === 'bad' || c === 'empty_completion') return 'Die Antwort war unvollständig. Versuche es noch einmal oder wähle weniger Karten und Fragen.';
+    if (c === 'cancelled') return 'Abgebrochen. Es wurde noch nichts erstellt.';
+    if (c === 'pdf') return 'Dieses PDF ließ sich nicht lesen (vielleicht nur gescannte Seiten). Lade die Seiten als Bilder hoch.';
+    if (c === 'format') return 'Dieses Dateiformat kann ich nicht lesen. Möglich sind Text, PDF, Word (.docx), Excel (.xlsx), CSV und Bilder. Speichere ältere Tabellen als .xlsx oder .csv.';
+    if (c === 'read') return 'Die Datei konnte nicht gelesen werden.';
+    if (c === 'noai' || c === 'images_unavailable') return 'Bilder lesen braucht Claude. Erlaube Claude für diese App oder füge den Text ein.';
+    if (c === 'image_rejected') return 'Dieses Bild wird nicht unterstützt. Erlaubt sind JPEG, PNG, WebP und GIF bis 20 MB.';
+    return 'Das hat nicht geklappt. Prüfe deine Verbindung und versuche es noch einmal.';
+  }
+
+  /* ---------- Dateien lesen ---------- */
+  const IMG_PROMPT = 'Lies den gesamten Text aus den angehängten Bildern ab (Buchseite, Folie, Notizen, Tafel oder Screenshot) und gib ihn als reinen Text wieder, in der Sprache der Vorlage und in der Reihenfolge der Bilder. Überschriften schreibst du mit # davor, Aufzählungen mit - davor. Zeigt ein Bild Diagramme oder Fotos ohne Text, beschreibe den Lerninhalt in vollständigen Sätzen. Antworte ohne Einleitung und ohne Kommentar, nur mit dem Inhalt.';
+  // In Claude lädt die Seite pdf.js aus dem CDN. In der eigenständigen App liegt es lokal im Ordner pdfjs/.
+  async function pdfLib() {
+    if (window.pdfjsLib) {
+      try { window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; } catch (x) {}
+      return window.pdfjsLib;
+    }
+    const m = await import('./pdfjs/pdf.min.mjs');
+    m.GlobalWorkerOptions.workerSrc = './pdfjs/pdf.worker.min.mjs';
+    return m;
+  }
+  function readPdf(file) {
+    return file.arrayBuffer().then(buf => pdfLib().then(lib => lib.getDocument({ data: new Uint8Array(buf) }).promise)).then(pdf => {
+      const pages = []; let chain = Promise.resolve();
+      for (let p = 1; p <= pdf.numPages; p++) {
+        chain = chain.then(() => pdf.getPage(p)).then(pg => pg.getTextContent())
+          .then(tc => { pages.push(tc.items.map(it => it.str).join(' ').replace(/\s+/g, ' ').trim()); });
+      }
+      return chain.then(() => pages.join('\n\n'));
+    }).catch(() => { throw { code: 'pdf' }; });
+  }
+  function readTxt(file) {
+    return new Promise((resolve, reject) => {
+      const rd = new FileReader();
+      rd.onload = () => resolve(String(rd.result || ''));
+      rd.onerror = () => reject({ code: 'read' });
+      rd.readAsText(file);
+    });
+  }
+
+  // Minimaler ZIP-Leser für .xlsx und .docx (Browser-eigene Entpackung)
+  async function unzip(buf) {
+    const dv = new DataView(buf), u8 = new Uint8Array(buf);
+    let e = -1; for (let i = u8.length - 22; i >= Math.max(0, u8.length - 70000); i--) { if (dv.getUint32(i, true) === 0x06054b50) { e = i; break; } }
+    if (e < 0) throw { code: 'format' };
+    const cnt = dv.getUint16(e + 10, true); let p = dv.getUint32(e + 16, true); const files = {};
+    for (let n = 0; n < cnt; n++) {
+      if (dv.getUint32(p, true) !== 0x02014b50) break;
+      const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true), el = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+      const name = new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nl));
+      files[name] = { method: method, csize: csize, off: off };
+      p += 46 + nl + el + cl;
+    }
+    return {
+      names: Object.keys(files),
+      async text(name) {
+        const f = files[name]; if (!f) return null;
+        const start = f.off + 30 + dv.getUint16(f.off + 26, true) + dv.getUint16(f.off + 28, true);
+        const raw = u8.subarray(start, start + f.csize);
+        if (f.method === 0) return new TextDecoder().decode(raw);
+        if (f.method !== 8 || typeof DecompressionStream === 'undefined') throw { code: 'format' };
+        const ds = new DecompressionStream('deflate-raw');
+        return new Response(new Blob([raw]).stream().pipeThrough(ds)).text().then(t => t);
+      }
+    };
+  }
+  const xmlDoc = t => new DOMParser().parseFromString(t, 'application/xml');
+  const cellClean = x => String(x == null ? '' : x).replace(/[\t\r\n]+/g, ' ').trim();
+  async function readXlsx(file) {
+    try {
+      const z = await unzip(await file.arrayBuffer());
+      const ss = [];
+      const sst = await z.text('xl/sharedStrings.xml');
+      if (sst) xmlDoc(sst).querySelectorAll('si').forEach(si => { ss.push(Array.from(si.querySelectorAll('t')).map(t => t.textContent).join('')); });
+      const sheets = z.names.filter(n => /^xl\/worksheets\/sheet\d+\.xml$/.test(n)).sort((a, b) => parseInt(a.replace(/\D/g, ''), 10) - parseInt(b.replace(/\D/g, ''), 10));
+      const lines = [];
+      for (const sn of sheets) {
+        const d = xmlDoc(await z.text(sn));
+        d.querySelectorAll('row').forEach(row => {
+          const cells = [];
+          row.querySelectorAll('c').forEach(c => {
+            const ref = (c.getAttribute('r') || '').replace(/\d/g, ''); let col = 0;
+            for (let i = 0; i < ref.length; i++) col = col * 26 + (ref.charCodeAt(i) - 64);
+            col = col ? col - 1 : cells.length;
+            const t = c.getAttribute('t'), v = c.querySelector('v');
+            let val = '';
+            if (t === 's') val = v ? ss[parseInt(v.textContent, 10)] : '';
+            else if (t === 'inlineStr') val = Array.from(c.querySelectorAll('t')).map(x => x.textContent).join('');
+            else val = v ? v.textContent : '';
+            while (cells.length < col) cells.push('');
+            cells[col] = cellClean(val);
+          });
+          if (cells.some(Boolean)) lines.push(cells.join('\t'));
+        });
+      }
+      return lines.join('\n');
+    } catch (x) { throw { code: 'format' }; }
+  }
+  async function readDocx(file) {
+    try {
+      const z = await unzip(await file.arrayBuffer());
+      const d = xmlDoc(await z.text('word/document.xml'));
+      const body = d.getElementsByTagName('w:body')[0]; if (!body) throw 0;
+      const txt = el => Array.from(el.getElementsByTagName('w:t')).map(t => t.textContent).join('');
+      const out = [];
+      Array.from(body.children).forEach(ch => {
+        if (ch.tagName === 'w:p') out.push(txt(ch));
+        else if (ch.tagName === 'w:tbl') Array.from(ch.getElementsByTagName('w:tr')).forEach(tr => out.push(Array.from(tr.getElementsByTagName('w:tc')).map(tc => cellClean(txt(tc))).join('\t')));
+      });
+      return out.join('\n');
+    } catch (x) { throw { code: 'format' }; }
+  }
+  function readAny(f) {
+    if (/\.pdf$/i.test(f.name) || f.type === 'application/pdf') return readPdf(f);
+    if (/\.xlsx$/i.test(f.name)) return readXlsx(f);
+    if (/\.docx$/i.test(f.name)) return readDocx(f);
+    if (/\.(xls|ods|odt|doc|pptx?|numbers|pages|rtf|zip|exe|mp3|mp4)$/i.test(f.name)) return Promise.reject({ code: 'format' });
+    return readTxt(f).then(t => { if (/\u0000/.test(t.slice(0, 2000))) throw { code: 'format' }; return t; });
+  }
+  function readImg(files) {
+    if (!smp) return Promise.reject({ code: 'noai' });
+    return smp(IMG_PROMPT, { images: files }).then(r => r.text);
+  }
+  const isImg = f => /^image\//.test(f.type) || /\.(png|jpe?g|webp|gif)$/i.test(f.name);
+  // Liest mehrere Dateien nacheinander. Mehrere Bilder einer Auswahl zählen als ein Dokument.
+  function loadFiles(files, report) {
+    const imgs = files.filter(isImg), others = files.filter(f => !isImg(f));
+    const max = ui.img ? ui.img.maxCount : 1;
+    const out = [], fails = []; let firstErr = null, chain = Promise.resolve(), n = 0;
+    const total = others.length + (imgs.length ? 1 : 0);
+    const fail = (name, err) => { fails.push(name); if (!firstErr && err) firstErr = err; };
+    others.forEach(f => {
+      chain = chain.then(() => {
+        report('Lese ' + (++n) + ' von ' + total + ': ' + f.name + ' …');
+        return readAny(f);
+      }).then(t => { t = String(t || '').trim(); if (t) out.push({ name: f.name, text: t }); else fail(f.name); })
+        .catch(err => fail(f.name, err));
+    });
+    if (imgs.length) {
+      const use = imgs.slice(0, max), label = use.length === 1 ? use[0].name : 'Bilder (' + use.length + ')';
+      chain = chain.then(() => {
+        report('Lese ' + (++n) + ' von ' + total + ': ' + label + ' … das kann bis zu einer Minute dauern.');
+        return readImg(use);
+      }).then(t => { t = String(t || '').trim(); if (t) out.push({ name: label, text: t }); else fail(label); })
+        .catch(err => fail(label, err));
+    }
+    return chain.then(() => ({ docs: out, fails: fails, err: firstErr, skipped: Math.max(0, imgs.length - max), max: max }));
+  }
+  function resultMsg(res) {
+    const parts = [];
+    if (res.docs.length) parts.push((res.docs.length > 1 ? res.docs.length + ' Dokumente' : 'Dokument') + ' hinzugefügt: ' + res.docs.map(d => d.name).join(', ') + '.');
+    if (res.fails.length) parts.push('Nicht gelesen: ' + res.fails.join(', ') + '. ' + (res.err ? errMsg(res.err) : 'Es wurde kein Text gefunden.'));
+    if (res.skipped) parts.push(res.skipped + ' Bild(er) übersprungen, weil pro Auswahl höchstens ' + res.max + ' Bilder möglich sind.');
+    return parts.join(' ');
+  }
+  const appendDoc = (base, d) => (String(base || '').trim() ? String(base).replace(/\s+$/, '') + '\n\n' : '') + DOC_PREFIX + d.name + ']\n' + d.text;
+  const acceptAttr = () => '';
+
+  /* ---------- Darstellung ---------- */
+  const viewEl = document.getElementById('view'), tabsEl = document.getElementById('tabs'), ttl = document.getElementById('ttl');
+  const ICON = {
+    summary: '<svg viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h9"/></svg>',
+    cards: '<svg viewBox="0 0 24 24"><rect x="3.5" y="6" width="14" height="12" rx="2"/><path d="M7 3.5h13.5V15"/></svg>',
+    quiz: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.7.4-1.1.9-1.1 1.8M12 16.8v.1"/></svg>',
+    chat: '<svg viewBox="0 0 24 24"><path d="M4.5 6.5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H10l-4.5 3.5V16.5a2 2 0 0 1-1-1.7z"/></svg>'
+  };
+  const TABS = [['summary', 'Überblick'], ['cards', 'Lernkarten'], ['quiz', 'Quiz'], ['chat', 'Chat']];
+  const KIND_FRONT = { frage: 'Frage', ereignis: 'Ereignis', ursache: 'Information', info: 'Information', vergleich: 'Vergleich', luecke: 'Lückentext', vokabel: 'Vokabel' };
+  const KIND_BACK = { frage: 'Antwort', ereignis: 'Darauf folgt', ursache: 'Erklärung', info: 'Bedeutung', vergleich: 'Unterschied', luecke: 'Fehlendes Wort', vokabel: 'Übersetzung' };
+  const labelFront = c => c.kind === 'ereignis' ? (c.dir === 'davor' ? 'Ereignis · Was geschah davor?' : 'Ereignis · Was geschah danach?') : (KIND_FRONT[c.kind] || 'Frage');
+  const labelBack = c => c.kind === 'ereignis' ? (c.dir === 'davor' ? 'Davor geschah' : 'Danach geschah') : (KIND_BACK[c.kind] || 'Antwort');
+  const WISHES = ['Schwerer', 'Leichter', 'Mehr Jahreszahlen und Daten', 'Ursachen und Folgen', 'Prüfungsnah mit Transferfragen'];
+
+  function renderTabs() {
+    tabsEl.innerHTML = TABS.filter(t => t[0] !== 'chat' || smp).map(t => {
+      const on = ui.view === 'study' && ui.tab === t[0];
+      return '<button class="tab" type="button" data-act="tab" data-tab="' + t[0] + '" aria-current="' + on + '">' + ICON[t[0]] + t[1] + '</button>';
+    }).join('');
+  }
+  function render() {
+    if (ui.tab === 'chat' && !smp) ui.tab = 'summary';
+    renderTabs();
+    const set = active();
+    if (ui.view === 'import') { ttl.textContent = 'Neues Thema'; viewEl.innerHTML = importHTML(); return; }
+    if (ui.view === 'sets') { ttl.textContent = 'Meine Themen'; viewEl.innerHTML = topicsHTML(); return; }
+    if (!set) {
+      ttl.textContent = 'Lernwerk';
+      viewEl.innerHTML = '<div class="panel empty"><h2>Noch kein Thema</h2><p class="msg">Füge einen Text ein oder lade Dateien hoch, dann entstehen Zusammenfassung, Lernkarten und Quiz.</p><button class="btn primary" type="button" data-act="go-import">Thema erstellen</button></div>';
+      return;
+    }
+    if (ui.view === 'newdeck') { ttl.textContent = set.title; viewEl.innerHTML = newDeckHTML(set); return; }
+    ttl.textContent = set.title;
+    if (ui.tab === 'summary') viewEl.innerHTML = summaryHTML(set);
+    else if (ui.tab === 'cards') viewEl.innerHTML = cardsTabHTML(set);
+    else if (ui.tab === 'chat') viewEl.innerHTML = chatHTML(set);
+    else viewEl.innerHTML = quizTabHTML(set);
+  }
+  const flashHTML = () => ui.flash ? '<div class="panel"><p class="msg">' + esc(ui.flash) + '</p></div>' : '';
+
+  /* Themenliste */
+  function topicsHTML() {
+    if (!S.sets.length) return '<div class="stack"><div class="panel empty"><h2>Noch kein Thema</h2><button class="btn primary" type="button" data-act="go-import">Thema erstellen</button></div>' + backupHTML() + '</div>';
+    return '<div class="stack">' + S.sets.map(s => {
+      const on = s.id === S.activeId, sure = ui.delId === s.id;
+      const cards = s.decks.reduce((a, d) => a + d.cards.length, 0), quiz = s.decks.reduce((a, d) => a + d.quiz.length, 0);
+      return '<div class="panel setrow' + (on ? ' active' : '') + '"><h3>' + esc(s.title) + '</h3>' +
+        '<div class="chips"><span class="chip">' + plural(Math.max(1, (s.docs || []).length), 'Dokument', 'Dokumente') + '</span><span class="chip">' + plural(s.decks.length, 'Lernset', 'Lernsets') + '</span><span class="chip">' + cards + ' Karten</span><span class="chip">' + quiz + ' Fragen</span></div>' +
+        '<div class="row"><button class="btn primary small" type="button" data-act="open" data-id="' + s.id + '">Öffnen</button>' +
+        '<button class="btn small' + (sure ? ' bad' : '') + '" type="button" data-act="del" data-id="' + s.id + '">' + (sure ? 'Wirklich löschen?' : 'Löschen') + '</button></div></div>';
+    }).join('') + backupHTML() + '</div>';
+  }
+  function backupHTML() {
+    return '<div class="panel stack"><div class="label" style="margin:0">Sicherung</div>' +
+      '<p class="msg">Speichere alle Themen als Datei oder als Text und lade sie auf einem anderen Gerät oder nach dem Löschen der Browserdaten wieder ein. Beim Einlesen werden Themen mit gleicher Kennung ersetzt, alle anderen bleiben erhalten.</p>' +
+      '<div class="row"><button class="btn small" type="button" data-act="bk-save">Als Datei speichern</button><button class="btn small" type="button" data-act="bk-copy">Text kopieren</button></div>' +
+      '<label class="btn small block" style="cursor:pointer">Sicherung aus Datei einlesen<input id="bk-file" type="file" accept=".json,.txt,application/json,text/plain" style="position:absolute;opacity:0;width:1px;height:1px"></label>' +
+      '<textarea id="bk-text" rows="3" placeholder="Oder hier den kopierten Sicherungstext einfügen" style="width:100%;box-sizing:border-box"></textarea>' +
+      '<button class="btn small" type="button" data-act="bk-paste">Eingefügten Text einlesen</button>' +
+      (ui.bkMsg ? '<p class="msg" style="' + (ui.bkErr ? 'color:var(--bad,#c0392b)' : '') + '">' + esc(ui.bkMsg) + '</p>' : '') + '</div>';
+  }
+  function backupJSON() { return JSON.stringify({ app: 'lernwerk', version: 1, exported: new Date().toISOString(), sets: S.sets, activeId: S.activeId }); }
+  function importBackup(raw) {
+    let p;
+    try { p = JSON.parse(String(raw).trim()); } catch (x) { return 'Das ist keine gültige Sicherung.'; }
+    if (!p || !Array.isArray(p.sets)) return 'Das ist keine gültige Sicherung.';
+    const ok = p.sets.filter(t => t && typeof t === 'object' && t.id && typeof t.title === 'string');
+    if (!ok.length) return 'In der Sicherung wurden keine Themen gefunden.';
+    ok.forEach(t => {
+      const i = S.sets.findIndex(x => x.id === t.id);
+      if (i >= 0) S.sets[i] = t; else S.sets.push(t);
+    });
+    migrate(); fc = null; qz = null; save();
+    return plural(ok.length, 'Thema', 'Themen') + ' eingelesen.';
+  }
+
+  /* Überblick */
+  function summaryHTML(set) {
+    const words = String(set.text || '').split(/\s+/).filter(Boolean).length;
+    const sm = set.summary || { short: '', points: [] };
+    return '<div class="stack">' + flashHTML() +
+      '<div class="chips"><span class="chip">' + words + ' Wörter</span><span class="chip">' + plural(Math.max(1, (set.docs || []).length), 'Dokument', 'Dokumente') + '</span><span class="chip">' + plural(set.decks.length, 'Lernset', 'Lernsets') + '</span></div>' +
+      '<div class="panel"><div class="label">Kurzfassung</div><p class="lead">' + esc(sm.short) + '</p></div>' +
+      '<div class="panel"><div class="label">Kernaussagen</div><ul class="points">' + sm.points.map(p => '<li><span>' + esc(p) + '</span></li>').join('') + '</ul></div>' +
+      (set.summaryStale ? '<div class="panel stack"><p class="msg">Du hast Dokumente hinzugefügt. Die Zusammenfassung zeigt noch den alten Stand.</p><button class="btn block" type="button" data-act="sum-update"' + (ui.sumBusy ? ' disabled' : '') + '>' + (ui.sumBusy ? 'Wird aktualisiert …' : 'Zusammenfassung aktualisieren') + '</button></div>' : '') +
+      '<div class="panel stack"><div class="label" style="margin:0">Lernsets in diesem Thema</div>' + deckRowsHTML(set) +
+      '<button class="btn primary block" type="button" data-act="go-newdeck">+ Neues Lernset erstellen</button></div>' +
+      docsPanelHTML(set) + '</div>';
+  }
+  function deckRowsHTML(set) {
+    if (!set.decks.length) return '<p class="msg">Dieses Thema hat noch kein Lernset.</p>';
+    return set.decks.map(d => {
+      const known = Object.keys(d.known || {}).filter(k => d.known[k]).length, sure = ui.delDeckId === d.id;
+      return '<div class="deckrow' + (d.id === set.deckId ? ' active' : '') + '"><h3>' + esc(d.name) + '</h3>' +
+        '<div class="chips"><span class="chip">' + d.cards.length + ' Karten</span><span class="chip">' + d.quiz.length + ' Fragen</span><span class="chip">' + known + ' gewusst</span>' + (d.best != null ? '<span class="chip">Bestwert ' + d.best + '/' + d.quiz.length + '</span>' : '') + '</div>' +
+        (d.wish ? '<p class="msg">Wunsch: ' + esc(d.wish) + '</p>' : '') +
+        '<div class="row"><button class="btn primary small" type="button" data-act="deck-open" data-to="cards" data-id="' + d.id + '">Lernkarten</button>' +
+        '<button class="btn small" type="button" data-act="deck-open" data-to="quiz" data-id="' + d.id + '">Quiz</button>' +
+        '<button class="btn small' + (sure ? ' bad' : '') + '" type="button" data-act="deck-del" data-id="' + d.id + '">' + (sure ? 'Wirklich löschen?' : 'Löschen') + '</button></div></div>';
+    }).join('');
+  }
+  function docsPanelHTML(set) {
+    const names = (set.docs && set.docs.length) ? set.docs : ['Ursprünglicher Text'];
+    return '<div class="panel stack"><div class="label" style="margin:0">Dokumente in diesem Thema</div>' +
+      '<div class="chips">' + names.map(n => '<span class="chip">' + esc(n) + '</span>').join('') + '</div>' +
+      '<label class="btn block upl">Weitere Dokumente hinzufügen<input type="file" id="add-file" multiple></label>' +
+      '<details><summary>Text einfügen</summary><div class="stack" style="margin-top:8px"><textarea id="add-text" style="min-height:140px" placeholder="Text hier einfügen …"></textarea><button class="btn block" type="button" data-act="add-paste">Als Dokument hinzufügen</button></div></details>' +
+      '<p class="msg' + (ui.docErr ? ' err' : '') + '" id="doc-msg" aria-live="polite">' + esc(ui.docMsg || 'Text, Markdown, PDF' + (ui.img ? ' und Bilder' : '') + ' möglich. Alle Dokumente gehören zu einem Thema. Neue Lernsets nutzen alle Dokumente.') + '</p>' +
+      '<details><summary>Gesamten Text anzeigen</summary><p>' + esc(set.text || '') + '</p></details></div>';
+  }
+
+  /* Lernsets: Auswahl und Leiste */
+  function pickerHTML(set) {
+    return '<div class="stack"><div class="panel"><h2 style="font-size:20px">Welches Lernset möchtest du üben?</h2><p class="msg" style="margin-top:6px">Dieses Thema hat ' + plural(set.decks.length, 'Lernset', 'Lernsets') + '. Wähle eines aus.</p></div>' +
+      deckRowsHTML(set) + '<button class="btn primary block" type="button" data-act="go-newdeck">+ Neues Lernset erstellen</button></div>';
+  }
+  function noDeckHTML() {
+    return '<div class="panel empty"><h2>Noch kein Lernset</h2><p class="msg">Erstelle ein Lernset aus den Dokumenten dieses Themas.</p><button class="btn primary" type="button" data-act="go-newdeck">Lernset erstellen</button></div>';
+  }
+  function deckBarHTML(set, d) {
+    return '<div class="deckbar"><div class="nm"><small>Lernset</small><strong>' + esc(d.name) + '</strong></div>' +
+      (set.decks.length > 1 ? '<button class="btn small" type="button" data-act="deck-switch">Wechseln</button>' : '') +
+      '<button class="btn small" type="button" data-act="go-newdeck">+ Neu</button></div>';
+  }
+
+  /* Lernkarten */
+  function cardsTabHTML(set) {
+    if (!set.decks.length) return noDeckHTML();
+    if (set.decks.length > 1 && !ui.picked[set.id]) return pickerHTML(set);
+    const d = deckOf(set);
+    return '<div class="stack">' + flashHTML() + deckBarHTML(set, d) + cardsHTML(d) + '</div>';
+  }
+  function cardsHTML(d) {
+    const known = d.known || {}, n = d.cards.length;
+    if (!fc || fc.deckId !== d.id) {
+      const q = []; for (let i = 0; i < n; i++) if (!known[i]) q.push(i);
+      fc = { deckId: d.id, queue: q };
+    }
+    const done = Object.keys(known).filter(k => known[k] && +k < n).length;
+    const pct = n ? Math.round(done / n * 100) : 0;
+    const head = '<div class="meta"><span>' + done + ' von ' + n + ' gewusst</span><span>' + pct + ' %</span></div><div class="progress"><i style="width:' + pct + '%"></i></div>';
+    if (!n) return '<div class="panel empty"><h2>Keine Karten</h2><p class="msg">Dieses Lernset hat keine Karten.</p></div>';
+    if (!fc.queue.length) {
+      return head + '<div class="panel empty"><h2>Alle Karten gewusst</h2><p class="msg">Stark. Du kannst den Stapel zurücksetzen und noch einmal von vorn üben.</p><button class="btn primary block" type="button" data-act="cards-reset">Von vorn beginnen</button></div>';
+    }
+    const c = d.cards[fc.queue[0]];
+    return head +
+      '<div class="flip"><button type="button" class="card" id="card" data-act="flip" aria-label="Karte umdrehen">' +
+      '<div class="face"><div class="kind">' + esc(labelFront(c)) + '</div><div>' + esc(c.q) + '</div><div class="hint">Antippen zum Umdrehen</div></div>' +
+      '<div class="face back"><div class="kind">' + esc(labelBack(c)) + '</div><div class="answer' + (c.a.length > 50 ? ' long' : '') + '">' + esc(c.a) + '</div>' + (c.full ? '<div class="full">' + esc(c.full) + '</div>' : '') + '</div>' +
+      '</button></div>' +
+      '<div class="two"><button class="btn bad" type="button" data-act="again">Nochmal lernen</button><button class="btn good" type="button" data-act="known">Gewusst</button></div>' +
+      (fc.queue.length > 1 ? '<button class="btn block" type="button" data-act="skip">Überspringen</button>' : '') +
+      '<p class="msg" style="text-align:center">Noch ' + fc.queue.length + ' im Stapel' + (fc.queue.length > 1 ? '. Übersprungene Karten kommen am Ende noch einmal.' : '') + '</p>';
+  }
+
+  /* Quiz */
+  function quizTabHTML(set) {
+    if (!set.decks.length) return noDeckHTML();
+    if (set.decks.length > 1 && !ui.picked[set.id]) return pickerHTML(set);
+    const d = deckOf(set);
+    return '<div class="stack">' + flashHTML() + deckBarHTML(set, d) + quizHTML(d) + '</div>';
+  }
+  function startQuiz(d) {
+    qz = { deckId: d.id, i: 0, score: 0, picked: null, finished: false,
+      run: shuffle(d.quiz).map(q => ({ q: q.q, opts: shuffle(q.options), right: q.options[q.answer], why: q.why || '' })) };
+  }
+  function quizHTML(d) {
+    if (!d.quiz.length) return '<div class="panel empty"><h2>Kein Quiz</h2><p class="msg">Dieses Lernset hat keine Quizfragen.</p></div>';
+    if (!qz || qz.deckId !== d.id) startQuiz(d);
+    const n = qz.run.length;
+    if (qz.finished) {
+      const pct = Math.round(qz.score / n * 100);
+      const msg = pct === 100 ? 'Perfekt, alles richtig.' : pct >= 70 ? 'Gut gemacht.' : pct >= 40 ? 'Ein Anfang. Die Lernkarten helfen beim Festigen.' : 'Noch Luft nach oben. Probiere zuerst die Lernkarten.';
+      return '<div class="panel stack" style="text-align:center;align-items:center"><div class="label" style="margin:0">Ergebnis</div><div class="score">' + qz.score + ' / ' + n + '</div><p class="lead">' + pct + ' % richtig. ' + msg + '</p>' +
+        (d.best != null ? '<p class="msg">Bestes Ergebnis: ' + d.best + ' / ' + n + '</p>' : '') + '</div>' +
+        '<button class="btn primary block" type="button" data-act="quiz-restart">Quiz neu starten</button>' +
+        '<button class="btn block" type="button" data-act="tab" data-tab="cards">Zu den Lernkarten</button>';
+    }
+    const r = qz.run[qz.i], pct2 = Math.round(qz.i / n * 100), picked = qz.picked;
+    const opts = r.opts.map((o, k) => {
+      let cls = 'opt';
+      if (picked !== null) { if (o === r.right) cls += ' good'; else if (k === picked) cls += ' bad'; else cls += ' dim'; }
+      return '<button type="button" class="' + cls + '" data-act="pick" data-k="' + k + '"' + (picked !== null ? ' disabled' : '') + '>' + esc(o) + '</button>';
+    }).join('');
+    let fb = '';
+    if (picked !== null) {
+      const ok = r.opts[picked] === r.right;
+      fb = '<p class="feedback ' + (ok ? 'good' : 'bad') + '">' + (ok ? 'Richtig!' : 'Leider falsch. Richtig ist: ' + esc(r.right)) + '</p>' + (r.why ? '<p class="msg">' + esc(r.why) + '</p>' : '') +
+        '<button class="btn primary block" type="button" data-act="next">' + (qz.i + 1 < n ? 'Weiter' : 'Ergebnis zeigen') + '</button>';
+    }
+    return '<div class="meta"><span>Frage ' + (qz.i + 1) + ' von ' + n + '</span><span>' + qz.score + ' richtig</span></div><div class="progress"><i style="width:' + pct2 + '%"></i></div>' +
+      '<div class="panel"><div class="q">' + esc(r.q) + '</div></div><div class="opts">' + opts + '</div>' + fb +
+      (picked === null && n - qz.i > 1 ? '<button class="btn block" type="button" data-act="qskip">Überspringen</button><p class="msg" style="text-align:center">Übersprungene Fragen kommen am Ende noch einmal.</p>' : '');
+  }
+
+  /* Formular für neue Lernsets */
+  function formHTML() {
+    const f = ui.form;
+    const nb = (k, v) => '<button type="button" class="chip chipbtn" data-act="setn" data-k="' + k + '" data-v="' + v + '">' + v + '</button>';
+    return '<div><div class="label">Name des Lernsets (optional)</div><input type="text" id="f-name" value="' + esc(f.name) + '" placeholder="z. B. Prüfungsvorbereitung"></div>' +
+      '<div class="two"><div><div class="label">Karten (1 bis ' + MAX_CARDS + ')</div><input type="number" inputmode="numeric" id="f-cards" min="1" max="' + MAX_CARDS + '" value="' + esc(f.nCards) + '">' +
+      '<div class="chips" style="margin-top:8px">' + [10, 20, 50, 100].map(v => nb('nCards', v)).join('') + '</div></div>' +
+      '<div><div class="label">Fragen (1 bis ' + MAX_QUIZ + ')</div><input type="number" inputmode="numeric" id="f-quiz" min="1" max="' + MAX_QUIZ + '" value="' + esc(f.nQuiz) + '">' +
+      '<div class="chips" style="margin-top:8px">' + [10, 25, 50].map(v => nb('nQuiz', v)).join('') + '</div></div></div>' +
+      (smp ? '<div><div class="label">Wünsche an Claude (optional)</div><textarea id="f-wish" style="min-height:96px" placeholder="z. B. Stelle mehr Fragen zu Ursachen und Folgen und mach die Quizfragen schwerer.">' + esc(f.wish) + '</textarea>' +
+        '<div class="chips" style="margin-top:8px">' + WISHES.map(w => '<button type="button" class="chip chipbtn" data-act="wish" data-w="' + esc(w) + '">' + esc(w) + '</button>').join('') + '</div></div>' +
+        '<p class="msg">Claude arbeitet bei vielen Karten in Etappen. Bei 100 Karten und 50 Fragen dauert das mehrere Minuten.</p>'
+        : '<p class="msg">Die Karten entstehen nach festen Regeln direkt auf deinem Gerät: Fragen zu Definitionen, Gründen, Jahreszahlen und Zahlen, sonst Lückentexte. Das klappt am besten bei klar geschriebenen Sachtexten. Wünsche sind dabei nicht möglich.</p>');
+  }
+  function buildBoxHTML() {
+    const b = ui.build;
+    if (b.busy) return '<div class="panel stack"><p class="msg" id="build-msg" aria-live="polite">' + esc(b.msg) + '</p><button class="btn block" type="button" data-act="job-stop">Beenden und bisherige Ergebnisse behalten</button></div>';
+    if (b.msg) return '<p class="msg' + (b.err ? ' err' : '') + '" aria-live="polite">' + esc(b.msg) + '</p>';
+    return '';
+  }
+  function importHTML() {
+    const d = ui.draft;
+    return '<div class="stack">' +
+      '<div class="panel stack"><div><div class="label">Titel des Themas (optional)</div><input type="text" id="imp-title" value="' + esc(d.title) + '" placeholder="z. B. Biologie Kapitel 3"></div>' +
+      '<div><div class="label">Text einfügen</div><textarea id="imp-text" placeholder="Hier Lerntext einfügen …">' + esc(d.text) + '</textarea></div>' +
+      '<label class="btn block upl">Dateien wählen (' + (ui.img ? 'Text, PDF, Word, Excel, CSV, Bilder' : 'Text, PDF, Word, Excel, CSV') + ', mehrere möglich)<input type="file" id="imp-file" multiple></label>' +
+      (d.docs.length ? '<div class="chips">' + d.docs.map(n => '<span class="chip">' + esc(n) + '</span>').join('') + '</div>' : '') +
+      '<p class="msg' + (d.err ? ' err' : '') + '" id="imp-msg" aria-live="polite">' + esc(d.msg || 'Alle Dokumente, die du hier hinzufügst, gehören zu einem Thema. Du kannst später weitere hinzufügen.') + '</p></div>' +
+      '<div class="panel stack"><div class="label" style="margin:0">Erstes Lernset</div>' + formHTML() + '</div>' +
+      buildBoxHTML() +
+      '<button class="btn primary block" type="button" data-act="create-topic"' + (ui.build.busy ? ' disabled' : '') + '>' + (ui.build.busy ? 'Wird erstellt …' : 'Thema erstellen') + '</button></div>';
+  }
+  function newDeckHTML(set) {
+    return '<div class="stack"><div class="panel stack"><h2 style="font-size:20px">Neues Lernset</h2>' +
+      '<p class="msg">Es entsteht aus allen Dokumenten dieses Themas.</p>' + formHTML() + '</div>' +
+      buildBoxHTML() +
+      '<button class="btn primary block" type="button" data-act="create-deck"' + (ui.build.busy ? ' disabled' : '') + '>' + (ui.build.busy ? 'Wird erstellt …' : 'Lernset erstellen') + '</button>' +
+      '<button class="btn block" type="button" data-act="back"' + (ui.build.busy ? ' disabled' : '') + '>Zurück</button></div>';
+  }
+
+  /* Chat */
+  const CHAT_SUGGEST = ['Fasse das Wichtigste in fünf Sätzen zusammen', 'Erkläre mir den schwierigsten Teil einfach', 'Stelle mir eine knifflige Frage zum Text'];
+  function chatHTML(set) {
+    if (!smp) return '<div class="panel empty"><h2>Chat nicht verfügbar</h2><p class="msg">Der Chat braucht Claude. Er funktioniert nur, wenn du Claude für diese App erlaubst.</p></div>';
+    const msgs = set.chat || [], c = ui.chat;
+    let list = msgs.map(m => '<div class="bubble ' + (m.role === 'user' ? 'me' : 'ai') + '">' + esc(m.content) + '</div>').join('');
+    if (c.busy) list += '<div class="bubble ai" id="chat-live">' + esc(c.partial || 'Denkt nach …') + '</div>';
+    const intro = (!msgs.length && !c.busy) ? '<div class="panel stack"><div class="label" style="margin:0">Frag zu „' + esc(set.title) + '“</div><p class="msg">Ich antworte nur auf Grundlage der Dokumente dieses Themas. Zum Beispiel:</p><div class="chips">' +
+      CHAT_SUGGEST.map(q => '<button class="chip chipbtn" type="button" data-act="chat-ask" data-q="' + esc(q) + '">' + esc(q) + '</button>').join('') + '</div></div>' : '';
+    return '<div class="stack">' + intro + '<div class="chat">' + list + '</div>' +
+      (c.err ? '<p class="msg err">' + esc(c.err) + '</p>' : '') +
+      '<div class="composer"><textarea id="chat-in" style="min-height:76px" placeholder="Frage zum Text stellen …"' + (c.busy ? ' disabled' : '') + '>' + esc(c.draft || '') + '</textarea>' +
+      '<div class="row">' + (c.busy ? '<button class="btn block" type="button" data-act="chat-stop">Stopp</button>' :
+        '<button class="btn primary" type="button" data-act="chat-send">Senden</button>' + (msgs.length ? '<button class="btn" type="button" data-act="chat-clear">Chat leeren</button>' : '')) + '</div></div></div>';
+  }
+  const toBottom = () => setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 0);
+  function sendChat(q) {
+    const set = active(); q = String(q || '').trim();
+    if (!set || !smp || ui.chat.busy || !q) return;
+    set.chat = set.chat || [];
+    set.chat.push({ role: 'user', content: q });
+    ui.chat.err = ''; ui.chat.draft = ''; ui.chat.busy = true; ui.chat.partial = '';
+    ui.chat.ctl = new AbortController();
+    const sys = 'Du bist ein geduldiger Lernbegleiter. Beantworte Fragen ausschließlich auf Grundlage des folgenden Lerntexts. Der Text kann aus mehreren Dokumenten bestehen, die mit [Dokument: Name] beginnen. Nenne bei Bedarf, aus welchem Dokument etwas stammt. Steht die Antwort nicht im Text, sage das klar und gib höchstens einen kurzen allgemeinen Hinweis, den du als „nicht im Text“ kennzeichnest. Antworte in der Sprache der Frage, kurz und gut verständlich. Verwende kein Markdown (keine Sternchen, keine Überschriften), Aufzählungen mit „- “ sind erlaubt. Wenn die Person Übungsfragen möchte, stelle eine Frage nach der anderen und warte auf die Antwort.\n\nLERNTEXT:\n' + String(set.text || '').slice(0, 150000);
+    const turns = [{ role: 'user', content: sys }].concat(set.chat.slice(0, -1).slice(-12), [{ role: 'user', content: q }]);
+    render(); toBottom();
+    const finish = () => {
+      ui.chat.busy = false; ui.chat.partial = ''; ui.chat.ctl = null;
+      if (set.chat.length > 40) set.chat = set.chat.slice(-40);
+      save(); if (ui.view === 'study' && ui.tab === 'chat') { render(); toBottom(); }
+    };
+    smp(turns, { cache: false, signal: ui.chat.ctl.signal, onText: u => {
+      ui.chat.partial = u.text; const el = document.getElementById('chat-live'); if (el) { el.textContent = u.text; window.scrollTo(0, document.body.scrollHeight); }
+    } }).then(r => { set.chat.push({ role: 'assistant', content: r.text }); finish(); })
+      .catch(err => {
+        if (err && err.text) set.chat.push({ role: 'assistant', content: err.text });
+        if (!(err && err.code === 'cancelled')) ui.chat.err = errMsg(err);
+        finish();
+      });
+  }
+
+  /* ---------- Aktionen ---------- */
+  const goTop = () => window.scrollTo(0, 0);
+  function setMsg(msg, err) {
+    ui.draft.msg = msg; ui.draft.err = !!err;
+    const m = document.getElementById('imp-msg'); if (m) { m.textContent = msg; m.className = 'msg' + (err ? ' err' : ''); }
+  }
+  function openTopic(id) {
+    S.activeId = id; save(); fc = null; qz = null; ui.view = 'study'; ui.tab = 'summary';
+    ui.flash = ''; ui.docMsg = ''; ui.docErr = false; ui.chat.err = ''; ui.chat.draft = ''; ui.delDeckId = null;
+  }
+  function readForm() {
+    const f = ui.form;
+    return { name: str(f.name), wish: str(f.wish), nCards: clampN(f.nCards, MAX_CARDS, 14), nQuiz: clampN(f.nQuiz, MAX_QUIZ, 10) };
+  }
+  function failJob(err) {
+    ui.build = { busy: false, msg: errMsg(err), err: true, ctl: null, stop: false };
+    render();
+  }
+
+  async function createTopic() {
+    const text = ui.draft.text.trim();
+    const form = readForm();
+    const isVoc = !!parseVocab(text);
+    if (text.length < 80 && !isVoc) { ui.build = { busy: false, msg: 'Der Text ist zu kurz. Füge mindestens ein paar Sätze oder ein Dokument hinzu.', err: true, ctl: null, stop: false }; render(); return; }
+    let r;
+    if (smp && !isVoc) {
+      startJob('Claude liest deinen Text …'); render();
+      try { r = await buildAI(text, form, true); } catch (e) { failJob(e); return; }
+    } else {
+      const loc = localAnalyze(text, form.nCards, form.nQuiz);
+      if (loc.error) { ui.build = { busy: false, msg: loc.error, err: true, ctl: null, stop: false }; render(); return; }
+      r = { summary: loc.summary, title: loc.title, cards: loc.cards, quiz: loc.quiz, note: loc.note || '' };
+    }
+    const deck = { id: uid(), name: form.name || 'Lernset 1', created: Date.now(), wish: form.wish, cards: r.cards, quiz: r.quiz, known: {}, best: null };
+    const topic = { id: uid(), v: 4, title: str(ui.draft.title) || r.title || 'Neues Thema', created: Date.now(), text: text, docs: ui.draft.docs.length ? ui.draft.docs.slice() : ['Eingefügter Text'], summary: r.summary, decks: [deck], deckId: deck.id, chat: [] };
+    S.sets.unshift(topic); S.activeId = topic.id; save();
+    ui.draft = { title: '', text: '', docs: [], msg: '', err: false }; ui.form = newForm();
+    ui.build = { busy: false, msg: '', err: false, ctl: null, stop: false };
+    fc = null; qz = null; ui.picked = {}; openTopic(topic.id); ui.flash = r.note || ''; render(); goTop();
+  }
+  async function createDeck() {
+    const set = active(); if (!set) return;
+    const form = readForm();
+    let r;
+    if (smp && !parseVocab(set.text)) {
+      startJob('Claude liest deine Dokumente …'); render();
+      try { r = await buildAI(set.text, form, false); } catch (e) { failJob(e); return; }
+    } else {
+      const loc = localAnalyze(set.text, form.nCards, form.nQuiz);
+      if (loc.error) { ui.build = { busy: false, msg: loc.error, err: true, ctl: null, stop: false }; render(); return; }
+      r = { cards: loc.cards, quiz: loc.quiz, note: loc.note || '' };
+    }
+    const deck = { id: uid(), name: form.name || ('Lernset ' + (set.decks.length + 1)), created: Date.now(), wish: form.wish, cards: r.cards, quiz: r.quiz, known: {}, best: null };
+    set.decks.push(deck); set.deckId = deck.id; ui.picked[set.id] = true; save();
+    ui.form = newForm(); ui.build = { busy: false, msg: '', err: false, ctl: null, stop: false };
+    fc = null; qz = null; ui.view = 'study'; ui.tab = 'cards'; ui.flash = r.note || ''; render(); goTop();
+  }
+  async function updateSummary(set) {
+    ui.sumBusy = true; render();
+    try {
+      let sm;
+      if (smp && !parseVocab(set.text)) { const r = await aiSummary(set.text); sm = { short: r.short, points: r.points }; }
+      else { const loc = localAnalyze(set.text, 3, 3); if (loc.error) throw { code: 'bad' }; sm = loc.summary; }
+      set.summary = sm; set.summaryStale = false; save(); ui.flash = '';
+    } catch (e) { ui.flash = errMsg(e); }
+    ui.sumBusy = false; if (ui.view === 'study' && ui.tab === 'summary') render();
+  }
+  function addDocsToTopic(set, docs) {
+    if (!docs.length) return;
+    set.docs = (set.docs && set.docs.length) ? set.docs : ['Ursprünglicher Text'];
+    docs.forEach(d => { set.text = appendDoc(set.text, d); set.docs.push(d.name); });
+    set.summaryStale = true; save();
+  }
+
+  document.addEventListener('change', e => {
+    const f = e.target;
+    if (!f || f.id !== 'bk-file' || !f.files || !f.files[0]) return;
+    f.files[0].text().then(txt => {
+      const m = importBackup(txt); ui.bkErr = !/eingelesen/.test(m); ui.bkMsg = m; render();
+    }).catch(() => { ui.bkErr = true; ui.bkMsg = 'Die Datei konnte nicht gelesen werden.'; render(); });
+  });
+
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const act = b.dataset.act, set = active();
+    switch (act) {
+      case 'tab':
+        if (!set) { ui.view = 'import'; render(); return; }
+        ui.view = 'study'; ui.tab = b.dataset.tab; ui.flash = ''; render();
+        window.scrollTo(0, ui.tab === 'chat' ? document.body.scrollHeight : 0); break;
+      case 'go-sets': ui.view = 'sets'; ui.delId = null; ui.bkMsg = ''; render(); goTop(); break;
+      case 'bk-save': {
+        ui.bkErr = false;
+        try {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(new Blob([backupJSON()], { type: 'application/json' }));
+          a.download = 'lernwerk-sicherung-' + new Date().toISOString().slice(0, 10) + '.json';
+          document.body.appendChild(a); a.click(); a.remove();
+          ui.bkMsg = 'Die Datei wird gespeichert. Falls nichts passiert, nimm „Text kopieren“.';
+        } catch (x) { ui.bkErr = true; ui.bkMsg = 'Speichern als Datei klappt hier nicht. Nimm „Text kopieren“.'; }
+        render(); break;
+      }
+      case 'bk-copy': {
+        const txt = backupJSON();
+        const done = ok => { ui.bkErr = !ok; ui.bkMsg = ok ? 'Sicherung kopiert. Füge sie irgendwo ein, zum Beispiel in eine Notiz.' : 'Kopieren wurde blockiert. Der Text steht jetzt unten im Feld, markiere und kopiere ihn von dort.'; render(); if (!ok) { const t = document.getElementById('bk-text'); if (t) { t.value = txt; t.select(); } } };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(() => done(true), () => done(false)); else done(false);
+        break;
+      }
+      case 'bk-paste': {
+        const t = document.getElementById('bk-text');
+        const m = importBackup(t ? t.value : '');
+        ui.bkErr = !/eingelesen/.test(m); ui.bkMsg = m; render(); break;
+      }
+      case 'go-import': ui.view = 'import'; render(); goTop(); break;
+      case 'back': ui.view = 'study'; ui.build.msg = ''; render(); goTop(); break;
+      case 'open': openTopic(b.dataset.id); render(); goTop(); break;
+      case 'del':
+        if (ui.delId !== b.dataset.id) { ui.delId = b.dataset.id; render(); return; }
+        S.sets = S.sets.filter(s => s.id !== ui.delId);
+        if (S.activeId === ui.delId) S.activeId = S.sets.length ? S.sets[0].id : null;
+        ui.delId = null; fc = null; qz = null; save(); render(); break;
+      case 'go-newdeck':
+        if (!set) return;
+        ui.form = newForm(); if (!ui.build.busy) ui.build = { busy: false, msg: '', err: false, ctl: null, stop: false };
+        ui.view = 'newdeck'; render(); goTop(); break;
+      case 'deck-open':
+        if (!set) return;
+        set.deckId = b.dataset.id; ui.picked[set.id] = true; save(); fc = null; qz = null;
+        ui.view = 'study'; ui.tab = b.dataset.to; ui.flash = ''; render(); goTop(); break;
+      case 'deck-switch': if (set) { ui.picked[set.id] = false; render(); goTop(); } break;
+      case 'deck-del':
+        if (!set) return;
+        if (ui.delDeckId !== b.dataset.id) { ui.delDeckId = b.dataset.id; render(); return; }
+        set.decks = set.decks.filter(d => d.id !== ui.delDeckId);
+        if (set.deckId === ui.delDeckId) set.deckId = set.decks.length ? set.decks[0].id : null;
+        ui.delDeckId = null; fc = null; qz = null; save(); render(); break;
+      case 'wish': {
+        const wi = document.getElementById('f-wish'), cur = wi ? wi.value.trim() : String(ui.form.wish || '').trim();
+        ui.form.wish = (cur ? cur.replace(/[.\s]+$/, '') + '. ' : '') + b.dataset.w + '.';
+        if (wi) wi.value = ui.form.wish; break;
+      }
+      case 'setn': {
+        const k = b.dataset.k; ui.form[k] = +b.dataset.v;
+        const inp = document.getElementById(k === 'nCards' ? 'f-cards' : 'f-quiz'); if (inp) inp.value = ui.form[k]; break;
+      }
+      case 'create-topic': if (!ui.build.busy) createTopic(); break;
+      case 'create-deck': if (!ui.build.busy) createDeck(); break;
+      case 'job-stop': ui.build.stop = true; if (ui.build.ctl) ui.build.ctl.abort(); progress('Wird beendet …'); break;
+      case 'sum-update': if (set && !ui.sumBusy) updateSummary(set); break;
+      case 'add-paste': {
+        const ta = document.getElementById('add-text'), t = ta ? ta.value.trim() : '';
+        if (!set || !t) { ui.docMsg = 'Füge zuerst Text ein.'; ui.docErr = true; render(); return; }
+        const n = (set.docs || []).filter(x => /^Eingefügter Text/.test(x)).length + 1;
+        addDocsToTopic(set, [{ name: 'Eingefügter Text ' + n, text: t }]);
+        ui.docMsg = 'Text hinzugefügt. Neue Lernsets nutzen ihn. Die Zusammenfassung kannst du oben aktualisieren.'; ui.docErr = false; render(); break;
+      }
+      case 'flip': { const c = document.getElementById('card'); if (c) c.classList.toggle('is-flipped'); break; }
+      case 'known': { const d = set && deckOf(set); if (d && fc && fc.queue.length) { d.known = d.known || {}; d.known[fc.queue.shift()] = true; save(); render(); } break; }
+      case 'again': if (fc && fc.queue.length) { const i = fc.queue.shift(); fc.queue.splice(Math.min(3, fc.queue.length), 0, i); render(); } break;
+      case 'skip': if (fc && fc.queue.length > 1) { fc.queue.push(fc.queue.shift()); render(); } break;
+      case 'qskip': if (qz && !qz.finished && qz.picked === null && qz.run.length - qz.i > 1) { qz.run.push(qz.run.splice(qz.i, 1)[0]); render(); } break;
+      case 'cards-reset': { const d = set && deckOf(set); if (d) { d.known = {}; fc = null; save(); render(); } break; }
+      case 'pick':
+        if (qz && qz.picked === null) { const k = +b.dataset.k, r = qz.run[qz.i]; qz.picked = k; if (r.opts[k] === r.right) qz.score++; render(); }
+        break;
+      case 'next': {
+        const d = set && deckOf(set);
+        if (!qz) break;
+        if (qz.i + 1 < qz.run.length) { qz.i++; qz.picked = null; }
+        else { qz.finished = true; if (d && (d.best == null || qz.score > d.best)) { d.best = qz.score; save(); } }
+        render(); goTop(); break;
+      }
+      case 'quiz-restart': { const d = set && deckOf(set); if (d) { startQuiz(d); render(); goTop(); } break; }
+      case 'chat-send': { const ci = document.getElementById('chat-in'); sendChat(ci ? ci.value : ui.chat.draft); break; }
+      case 'chat-ask': sendChat(b.dataset.q); break;
+      case 'chat-stop': if (ui.chat.ctl) ui.chat.ctl.abort(); break;
+      case 'chat-clear': if (set) { set.chat = []; ui.chat.err = ''; save(); render(); } break;
+    }
+  });
+
+  document.addEventListener('input', e => {
+    switch (e.target.id) {
+      case 'imp-title': ui.draft.title = e.target.value; break;
+      case 'imp-text': ui.draft.text = e.target.value; break;
+      case 'f-name': ui.form.name = e.target.value; break;
+      case 'f-wish': ui.form.wish = e.target.value; break;
+      case 'f-cards': ui.form.nCards = e.target.value; break;
+      case 'f-quiz': ui.form.nQuiz = e.target.value; break;
+      case 'chat-in': ui.chat.draft = e.target.value; break;
+    }
+  });
+
+  document.addEventListener('change', e => {
+    const id = e.target.id;
+    if (id !== 'imp-file' && id !== 'add-file') return;
+    const files = Array.prototype.slice.call(e.target.files || []);
+    e.target.value = '';
+    if (!files.length) return;
+    if (id === 'imp-file') {
+      setMsg('Dateien werden gelesen …', false);
+      loadFiles(files, m => setMsg(m, false)).then(res => {
+        res.docs.forEach(d => { ui.draft.text = appendDoc(ui.draft.text, d); ui.draft.docs.push(d.name); });
+        if (!ui.draft.title && res.docs.length) ui.draft.title = res.docs[0].name.replace(/\.[^.]+$/, '');
+        ui.draft.msg = resultMsg(res) + (res.docs.length ? ' Du kannst den Text noch anpassen.' : '');
+        ui.draft.err = !res.docs.length;
+        if (ui.view === 'import') render();
+      });
+    } else {
+      const set = active(); if (!set) return;
+      const dm = document.getElementById('doc-msg'); if (dm) dm.textContent = 'Dateien werden gelesen …';
+      loadFiles(files, m => { const el = document.getElementById('doc-msg'); if (el) el.textContent = m; }).then(res => {
+        addDocsToTopic(set, res.docs);
+        ui.docMsg = resultMsg(res) + (res.docs.length ? ' Neue Lernsets nutzen alle Dokumente. Die Zusammenfassung kannst du oben aktualisieren.' : '');
+        ui.docErr = !res.docs.length;
+        if (ui.view === 'study' && ui.tab === 'summary') render();
+      });
+    }
+  });
+
+  render();
+
+  (async function () {
+    try {
+      if (!(window.claude && window.claude.use)) return;
+      const s = await window.claude.use('sample');
+      if (!s) return;
+      const l = await s.limits().catch(() => null);
+      smp = s;
+      if (l && l.images) ui.img = l.images;
+      if (!ui.build.busy && !ui.chat.busy && (ui.view === 'import' || ui.view === 'study' || ui.view === 'newdeck')) render();
+    } catch (x) {}
+  })();
+})();
+</script>
+<noscript>Lernwerk braucht JavaScript.</noscript>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+}
+</script>
+</body>
+</html>
