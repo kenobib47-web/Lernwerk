@@ -1,7 +1,7 @@
 // Service Worker: macht Lernwerk offline nutzbar.
 // Mit Internet lädt er immer die neueste Datei und merkt sie sich, ohne Internet nimmt er die gemerkte.
 // Bei einer neuen Version diese Zahl erhöhen, dann wird der alte Zwischenspeicher gelöscht.
-const CACHE = 'lernwerk-v4';
+const CACHE = 'lernwerk-v8';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'pdfjs/pdf.min.mjs', 'pdfjs/pdf.worker.min.mjs'];
 
 self.addEventListener('install', function (e) {

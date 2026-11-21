@@ -303,6 +303,23 @@ input[type="text"], input[type="number"] { min-height: 52px; }
       if (!s.docs) s.docs = [];
       if (!s.chat) s.chat = [];
       if (!s.summary) s.summary = { short: '', points: [] };
+      // Einmalig: doppelte Karten und Fragen in bestehenden Lernsets entfernen (Gelernt-Markierungen wandern mit)
+      s.decks.forEach(d => {
+        if (d.dd >= 2) return;
+        const LG = /^(deutsch|german|englisch|english|spanisch|spanish|espanol|español|alemán|aleman|inglés|ingles|französisch|francais|français|french|latein|latin|italienisch|italiano|italian)$/i;
+        const nk = x => String(x).toLowerCase().replace(/[^a-zäöüß0-9]+/g, ' ').trim();
+        const seen = {}, keep = [], known = {};
+        (d.cards || []).forEach((c, i) => {
+          const k = nk(c.q);
+          if (c.kind === 'vokabel' && LG.test(String(c.q).trim()) && LG.test(String(c.a).split('\n')[0].trim())) return;
+          if (seen[k] != null) { if (d.known && d.known[i]) known[seen[k]] = true; return; }
+          seen[k] = keep.length; if (d.known && d.known[i]) known[keep.length] = true; keep.push(c);
+        });
+        if (keep.length !== (d.cards || []).length) { d.cards = keep; d.known = known; changed = true; }
+        const sq = {}; const qn = (d.quiz || []).filter(q => { const k = nk(q.q); const m = /^Welche Übersetzung passt zu „(.+)“\?$/.exec(q.q || ''); if (m && LG.test(m[1].trim()) && LG.test(String(q.options[q.answer] || '').trim())) return false; if (sq[k]) return false; sq[k] = 1; return true; });
+        if (qn.length !== (d.quiz || []).length) { d.quiz = qn; changed = true; }
+        d.dd = 2; changed = true;
+      });
       s.v = 4;
       return s;
     });
@@ -443,7 +460,7 @@ input[type="text"], input[type="number"] { min-height: 52px; }
 
 
   /* ---------- Vokabeltabellen ---------- */
-  const HEAD_RE = /^(deutsch|german|englisch|english|französisch|french|spanisch|spanish|latein|latin|italienisch|italian|wort|vokabel|vokabeln|begriff|übersetzung|translation|bedeutung|lektion|unit|nr\.?|seite|sprache|beispiel|example)$/i;
+  const HEAD_RE = /^(deutsch|german|englisch|english|spanisch|spanish|espanol|español|alemán|aleman|inglés|ingles|französisch|francais|français|french|latein|latin|italienisch|italiano|italian|wort|vokabel|vokabeln|begriff|übersetzung|translation|bedeutung|lektion|unit|nr\.?|seite|sprache|beispiel|example)$/i;
   function splitCsv(line, d) {
     const out = []; let cur = '', q = false;
     for (let i = 0; i < line.length; i++) {
@@ -466,6 +483,7 @@ input[type="text"], input[type="number"] { min-height: 52px; }
   ];
   const shortCell = c => c && c.length <= 60 && c.split(/\s+/).length <= 6;
   // Erkennt eine Tabelle mit Wort und Übersetzung pro Zeile. Gibt null zurück, wenn der Text keine ist.
+  const vnorm = x => String(x).toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim().replace(/^(der|die|das|ein|eine|the|to|a|an|el|la|los|las|le|les|un|une|una|il|lo)\s+/, '');
   function parseVocab(text) {
     const lines = String(text || '').replace(/\r/g, '').split('\n').map(x => x.trim()).filter(x => x && x.indexOf(DOC_PREFIX) !== 0 && !/^[\s|:\-–—+=]+$/.test(x));
     if (lines.length < 4) return null;
@@ -475,40 +493,77 @@ input[type="text"], input[type="number"] { min-height: 52px; }
       if (!best || rows.length > best.length) best = rows;
     });
     if (!best || best.length < 4 || best.length < lines.length * 0.7) return null;
+    const isHead = r => [r[0], r[1]].every(c => HEAD_RE.test(String(c).replace(/\(.*?\)/g, '').replace(/[:*]/g, '').trim()));
     let rows = best, head = null;
-    if (rows[0].some(c => HEAD_RE.test(c))) { head = rows[0]; rows = rows.slice(1); }
-    const seen = {}, pairs = [];
+    if (rows[0].some(c => HEAD_RE.test(String(c).replace(/\(.*?\)/g, '').trim()))) { head = rows[0]; rows = rows.slice(1); }
+    rows = rows.filter(r => !isHead(r));
+    const byA = {}, pairs = [];
     rows.forEach(r => {
-      const a = r[0], b = r[1], k = a.toLowerCase();
-      if (!a || !b || seen[k] || a.toLowerCase() === b.toLowerCase()) return;
-      seen[k] = 1; pairs.push({ a: a, b: b, note: r[2] && shortCell(r[2]) ? r[2] : '' });
+      const a = r[0], b = r[1], ka = vnorm(a), kb = vnorm(b);
+      if (!a || !b || !ka || !kb || ka === kb) return;
+      if (byA[ka]) { if (byA[ka].bs.every(x => vnorm(x) !== kb)) byA[ka].bs.push(b); return; }
+      // umgekehrt notierte Zeile (dog - Hund nach Hund - dog) überspringen
+      if (pairs.some(p => vnorm(p.a) === kb && p.bs.some(x => vnorm(x) === ka))) return;
+      const pr = { a: a, bs: [b], note: r[2] && shortCell(r[2]) ? r[2] : '' };
+      byA[ka] = pr; pairs.push(pr);
     });
     if (pairs.length < 4) return null;
     return { pairs: pairs, head: head };
   }
+  // Mischt so, dass dasselbe Wort (beide Richtungen) nie dicht hintereinander kommt
+  function spreadOut(items, key) {
+    const out = [], pool = shuffle(items), uniq = {};
+    items.forEach(x => { uniq[key(x)] = 1; });
+    const K = Math.max(1, Math.min(12, Math.floor(Object.keys(uniq).length / 2)));
+    while (pool.length) {
+      const recent = out.slice(-K).map(key);
+      let i = pool.findIndex(x => recent.indexOf(key(x)) < 0);
+      if (i < 0) i = 0;
+      out.push(pool.splice(i, 1)[0]);
+    }
+    return out;
+  }
+  const VOCAB_BLOCK = 50;
   function vocabAnalyze(v, nameHint) {
     const P = v.pairs, n = P.length;
-    const dirs = [];
-    P.forEach((p, i) => { dirs.push({ i: i, f: true }); });
-    P.forEach((p, i) => { dirs.push({ i: i, f: false }); });
-    const cards = dirs.slice(0, MAX_CARDS).map(d => {
-      const p = P[d.i], q = d.f ? p.a : p.b, a = d.f ? p.b : p.a;
-      return { kind: 'vokabel', q: q, a: a + (p.note ? '\n(' + p.note + ')' : ''), full: p.a + ' = ' + p.b };
-    });
-    const quiz = shuffle(dirs).slice(0, MAX_QUIZ).map(d => {
-      const p = P[d.i], q = d.f ? p.a : p.b, a = d.f ? p.b : p.a;
-      const pool = P.filter((x, j) => j !== d.i).map(x => d.f ? x.b : x.a).filter(x => x.toLowerCase() !== a.toLowerCase());
-      const uniq = pool.filter((x, j) => pool.indexOf(x) === j);
-      const near = uniq.map(x => ({ x: x, k: Math.abs(x.length - a.length) + Math.random() * 4 })).sort((u, w) => u.k - w.k).slice(0, 8).map(o => o.x);
-      const opts = shuffle(shuffle(near).slice(0, 3).concat([a]));
-      return { q: 'Welche Übersetzung passt zu „' + q + '“?', options: opts, answer: opts.indexOf(a), why: p.a + ' = ' + p.b };
-    });
+    // Wort -> alle Übersetzungen; Übersetzung -> alle Wörter (Synonyme zusammenfassen)
+    const fwd = P.map((p, i) => ({ q: p.a, ans: p.bs.slice(), note: p.note, pi: i, f: true }));
+    const revMap = {}, rev = [];
+    P.forEach((p, i) => p.bs.forEach(b => {
+      const k = vnorm(b);
+      if (!revMap[k]) { revMap[k] = { q: b, ans: [], note: '', pi: i, f: false }; rev.push(revMap[k]); }
+      if (revMap[k].ans.every(x => vnorm(x) !== vnorm(p.a))) revMap[k].ans.push(p.a);
+    }));
+    const cardOf = d => ({ kind: 'vokabel', q: d.q, a: d.ans.join('; ') + (d.note ? '\n(' + d.note + ')' : ''), full: d.f ? d.q + ' = ' + d.ans.join('; ') : d.ans.join('; ') + ' = ' + d.q });
+    const quizOf = (d, seenQ) => {
+      const right = d.ans[0], bad = {};
+      d.ans.forEach(a => { bad[vnorm(a)] = 1; });
+      const pool = [], seen = {};
+      (d.f ? fwd : rev).forEach(o => { if (vnorm(o.q) === vnorm(d.q)) return; const c = o.ans[0], k = vnorm(c); if (bad[k] || seen[k]) return; seen[k] = 1; pool.push(c); });
+      if (pool.length < 3) return null;
+      const near = pool.map(c => ({ c: c, k: Math.abs(c.length - right.length) + Math.random() * 4 })).sort((u, w) => u.k - w.k).slice(0, 8).map(o => o.c);
+      const opts = shuffle(shuffle(near).slice(0, 3).concat([right]));
+      const q = 'Welche Übersetzung passt zu „' + d.q + '“?';
+      if (seenQ[vnorm(q)]) return null; seenQ[vnorm(q)] = 1;
+      return { q: q, options: opts, answer: opts.indexOf(right), why: d.q + ' = ' + d.ans.join('; ') };
+    };
+    const blocks = [];
+    for (let st = 0; st < n; st += VOCAB_BLOCK) {
+      const items = fwd.concat(rev).filter(d => d.pi >= st && d.pi < st + VOCAB_BLOCK);
+      const seenQ = {};
+      blocks.push({
+        name: n <= VOCAB_BLOCK ? '' : 'Wörter ' + (st + 1) + '–' + Math.min(n, st + VOCAB_BLOCK),
+        cards: spreadOut(items, d => d.pi).map(cardOf),
+        quiz: spreadOut(items, d => d.pi).map(d => quizOf(d, seenQ)).filter(Boolean)
+      });
+    }
+    const cards = [].concat.apply([], blocks.map(b => b.cards)), quiz = [].concat.apply([], blocks.map(b => b.quiz));
     const h = v.head && v.head.length >= 2 ? v.head[0] + ' / ' + v.head[1] : '';
     return {
-      vocab: true, cards: cards, quiz: quiz,
+      vocab: true, blocks: blocks, cards: cards, quiz: quiz,
       title: h ? 'Vokabeln ' + h : (nameHint || 'Vokabeln'),
-      summary: { short: 'Vokabelliste mit ' + n + ' Einträgen. Jede Vokabel wird in beide Richtungen abgefragt.', points: P.slice(0, 8).map(p => p.a + ' = ' + p.b) },
-      note: 'Vokabeltabelle erkannt: ' + n + ' Wortpaare, daraus ' + cards.length + ' Karten und ' + quiz.length + ' Quizfragen (beide Richtungen).'
+      summary: { short: 'Vokabelliste mit ' + n + ' Einträgen. Jedes Wort wird in beide Richtungen abgefragt, doppelte Einträge sind zusammengefasst.', points: P.slice(0, 8).map(p => p.a + ' = ' + p.bs.join('; ')) },
+      note: 'Vokabeltabelle erkannt: ' + n + ' Wortpaare, daraus ' + cards.length + ' Karten und ' + quiz.length + ' Quizfragen' + (blocks.length > 1 ? ', verteilt auf ' + blocks.length + ' Lernsets mit je bis zu ' + VOCAB_BLOCK + ' Wörtern' : '') + '. Jedes Wort wird in beide Richtungen abgefragt, doppelte Einträge wurden zusammengefasst.'
     };
   }
 
@@ -639,7 +694,7 @@ input[type="text"], input[type="number"] { min-height: 52px; }
       if (revDef(it)) picked.push({ key: it.idx * 2 + 1, card: { kind: 'frage', q: revQ(it), a: lc1(it.subject) === it.subject ? it.subject : it.subject, full: it.s } });
       else if (alt) picked.push({ key: it.idx * 2 + 1, card: { kind: 'luecke', q: 'Ergänze die Lücke:\n' + blankOut(it.s, alt.w), a: alt.w, full: it.s } });
     }
-    const cards = picked.sort((a, b) => a.key - b.key).map(x => x.card);
+    let cards = picked.sort((a, b) => a.key - b.key).map(x => x.card);
     const quizItems = [], seenQ = {};
     const addQuiz = (idx, qq) => { if (qq && !seenQ[qq.q]) { seenQ[qq.q] = 1; quizItems.push({ idx: idx, q: qq }); } };
     for (let i = 0; i < order.length && quizItems.length < nQ; i++) addQuiz(order[i].idx, quizOf(order[i]));
@@ -649,6 +704,8 @@ input[type="text"], input[type="number"] { min-height: 52px; }
       const alt = altOf(it); if (alt) addQuiz(it.idx + 0.5, clozeQuiz(it, alt));
     }
     const quiz = quizItems.sort((a, b) => a.idx - b.idx).map(x => x.q);
+    const dedupe = (arr, f) => { const seen = {}; return arr.filter(x => { const k = normKey(f(x)); if (!k || seen[k]) return false; seen[k] = 1; return true; }); };
+    cards = dedupe(cards, c => c.q);
     if (!cards.length) return { error: 'Aus diesem Text konnte ich keine Lernkarten ableiten. Versuche einen längeren Fließtext.' };
 
     const top = scored.slice().sort((a, b) => b.sc - a.sc).slice(0, Math.min(7, sents.length)).sort((a, b) => a.i - b.i);
@@ -1231,10 +1288,11 @@ input[type="text"], input[type="number"] { min-height: 52px; }
     } else {
       const loc = localAnalyze(text, form.nCards, form.nQuiz);
       if (loc.error) { ui.build = { busy: false, msg: loc.error, err: true, ctl: null, stop: false }; render(); return; }
-      r = { summary: loc.summary, title: loc.title, cards: loc.cards, quiz: loc.quiz, note: loc.note || '' };
+      r = { summary: loc.summary, title: loc.title, cards: loc.cards, quiz: loc.quiz, blocks: loc.blocks || null, note: loc.note || '' };
     }
-    const deck = { id: uid(), name: form.name || 'Lernset 1', created: Date.now(), wish: form.wish, cards: r.cards, quiz: r.quiz, known: {}, best: null };
-    const topic = { id: uid(), v: 4, title: str(ui.draft.title) || r.title || 'Neues Thema', created: Date.now(), text: text, docs: ui.draft.docs.length ? ui.draft.docs.slice() : ['Eingefügter Text'], summary: r.summary, decks: [deck], deckId: deck.id, chat: [] };
+    const mkDeck = (name, cards, quiz) => ({ id: uid(), name: name, created: Date.now(), wish: form.wish, cards: cards, quiz: quiz, known: {}, best: null });
+    const decks = (r.blocks && r.blocks.length > 1) ? r.blocks.map(b => mkDeck(b.name, b.cards, b.quiz)) : [mkDeck(form.name || 'Lernset 1', r.cards, r.quiz)];
+    const topic = { id: uid(), v: 4, title: str(ui.draft.title) || r.title || 'Neues Thema', created: Date.now(), text: text, docs: ui.draft.docs.length ? ui.draft.docs.slice() : ['Eingefügter Text'], summary: r.summary, decks: decks, deckId: decks[0].id, chat: [] };
     S.sets.unshift(topic); S.activeId = topic.id; save();
     ui.draft = { title: '', text: '', docs: [], msg: '', err: false }; ui.form = newForm();
     ui.build = { busy: false, msg: '', err: false, ctl: null, stop: false };
@@ -1250,12 +1308,13 @@ input[type="text"], input[type="number"] { min-height: 52px; }
     } else {
       const loc = localAnalyze(set.text, form.nCards, form.nQuiz);
       if (loc.error) { ui.build = { busy: false, msg: loc.error, err: true, ctl: null, stop: false }; render(); return; }
-      r = { cards: loc.cards, quiz: loc.quiz, note: loc.note || '' };
+      r = { cards: loc.cards, quiz: loc.quiz, blocks: loc.blocks || null, note: loc.note || '' };
     }
-    const deck = { id: uid(), name: form.name || ('Lernset ' + (set.decks.length + 1)), created: Date.now(), wish: form.wish, cards: r.cards, quiz: r.quiz, known: {}, best: null };
-    set.decks.push(deck); set.deckId = deck.id; ui.picked[set.id] = true; save();
+    const mkDeck = (name, cards, quiz) => ({ id: uid(), name: name, created: Date.now(), wish: form.wish, cards: cards, quiz: quiz, known: {}, best: null });
+    const fresh = (r.blocks && r.blocks.length > 1) ? r.blocks.map(b => mkDeck(b.name, b.cards, b.quiz)) : [mkDeck(form.name || ('Lernset ' + (set.decks.length + 1)), r.cards, r.quiz)];
+    fresh.forEach(d => set.decks.push(d)); set.deckId = fresh[0].id; ui.picked[set.id] = true; save();
     ui.form = newForm(); ui.build = { busy: false, msg: '', err: false, ctl: null, stop: false };
-    fc = null; qz = null; ui.view = 'study'; ui.tab = 'cards'; ui.flash = r.note || ''; render(); goTop();
+    fc = null; qz = null; ui.view = 'study'; ui.tab = fresh.length > 1 ? 'summary' : 'cards'; ui.flash = r.note || ''; render(); goTop();
   }
   async function updateSummary(set) {
     ui.sumBusy = true; render();
