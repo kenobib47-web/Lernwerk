@@ -128,6 +128,10 @@ details p { white-space: pre-line; margin: 8px 0 0; color: var(--muted); font-si
   transform-style: preserve-3d; transition: transform .5s; text-align: left;
 }
 .card.is-flipped { transform: rotateY(180deg); }
+.card { touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.flip { transition: transform .25s ease, box-shadow .2s; border-radius: 20px; }
+.flip.swipe-r { box-shadow: 0 0 0 4px var(--good, #2e9d5b); }
+.flip.swipe-l { box-shadow: 0 0 0 4px var(--bad, #d64545); }
 .face {
   position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
   display: flex; flex-direction: column; justify-content: center; gap: 12px;
@@ -1116,7 +1120,7 @@ input[type="text"], input[type="number"] { min-height: 52px; }
     const known = d.known || {}, n = d.cards.length;
     if (!fc || fc.deckId !== d.id) {
       const q = []; for (let i = 0; i < n; i++) if (!known[i]) q.push(i);
-      fc = { deckId: d.id, queue: q };
+      fc = { deckId: d.id, queue: q, hist: [] };
     }
     const done = Object.keys(known).filter(k => known[k] && +k < n).length;
     const pct = n ? Math.round(done / n * 100) : 0;
@@ -1126,14 +1130,37 @@ input[type="text"], input[type="number"] { min-height: 52px; }
       return head + '<div class="panel empty"><h2>Alle Karten gewusst</h2><p class="msg">Stark. Du kannst den Stapel zurücksetzen und noch einmal von vorn üben.</p><button class="btn primary block" type="button" data-act="cards-reset">Von vorn beginnen</button></div>';
     }
     const c = d.cards[fc.queue[0]];
+    const hasBack = fc.hist && fc.hist.length, hasSkip = fc.queue.length > 1;
     return head +
       '<div class="flip"><button type="button" class="card" id="card" data-act="flip" aria-label="Karte umdrehen">' +
       '<div class="face"><div class="kind">' + esc(labelFront(c)) + '</div><div>' + esc(c.q) + '</div><div class="hint">Antippen zum Umdrehen</div></div>' +
       '<div class="face back"><div class="kind">' + esc(labelBack(c)) + '</div><div class="answer' + (c.a.length > 50 ? ' long' : '') + '">' + esc(c.a) + '</div>' + (c.full ? '<div class="full">' + esc(c.full) + '</div>' : '') + '</div>' +
       '</button></div>' +
       '<div class="two"><button class="btn bad" type="button" data-act="again">Nochmal lernen</button><button class="btn good" type="button" data-act="known">Gewusst</button></div>' +
-      (fc.queue.length > 1 ? '<button class="btn block" type="button" data-act="skip">Überspringen</button>' : '') +
-      '<p class="msg" style="text-align:center">Noch ' + fc.queue.length + ' im Stapel' + (fc.queue.length > 1 ? '. Übersprungene Karten kommen am Ende noch einmal.' : '') + '</p>';
+      (hasBack || hasSkip ? '<div class="two">' + (hasBack ? '<button class="btn" type="button" data-act="card-back">← Zurück</button>' : '<span></span>') + (hasSkip ? '<button class="btn" type="button" data-act="skip">Überspringen</button>' : '<span></span>') + '</div>' : '') +
+      '<p class="msg" style="text-align:center">Noch ' + fc.queue.length + ' im Stapel. Nach rechts wischen: gewusst. Nach links wischen: nochmal lernen. Diese Karten kommen ganz ans Ende.</p>';
+  }
+
+  // Karten-Aktionen (Tasten und Wischen). "Nochmal" und "Überspringen" stellen die Karte ganz ans Ende.
+  function cardAct(kind) {
+    const set = active(); const d = set && deckOf(set);
+    if (!d || !fc || !fc.queue.length) return;
+    fc.hist = fc.hist || [];
+    const i = fc.queue[0];
+    fc.hist.push({ queue: fc.queue.slice(), i: i, was: !!(d.known && d.known[i]) });
+    if (fc.hist.length > 200) fc.hist.shift();
+    fc.queue.shift();
+    if (kind === 'known') { d.known = d.known || {}; d.known[i] = true; save(); }
+    else if (kind === 'again' || kind === 'skip') fc.queue.push(i);
+    render();
+  }
+  function cardBack() {
+    const set = active(); const d = set && deckOf(set);
+    if (!d || !fc || !fc.hist || !fc.hist.length) return;
+    const h = fc.hist.pop();
+    fc.queue = h.queue;
+    if (!h.was && d.known && d.known[h.i]) { delete d.known[h.i]; save(); }
+    render();
   }
 
   /* Quiz */
@@ -1341,8 +1368,36 @@ input[type="text"], input[type="number"] { min-height: 52px; }
     }).catch(() => { ui.bkErr = true; ui.bkMsg = 'Die Datei konnte nicht gelesen werden.'; render(); });
   });
 
+  let sw = null, swipeBlock = false;
+  document.addEventListener('pointerdown', e => {
+    const c = e.target.closest && e.target.closest('#card');
+    if (!c || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    swipeBlock = false;
+    sw = { x: e.clientX, y: e.clientY, dx: 0, on: false, el: c.parentNode };
+  });
+  document.addEventListener('pointermove', e => {
+    if (!sw) return;
+    const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+    if (!sw.on && Math.abs(dx) < 12) { if (Math.abs(dy) > 14) sw = null; return; }
+    if (!sw.on && Math.abs(dy) > Math.abs(dx)) { sw = null; return; }
+    sw.on = true; sw.dx = dx;
+    sw.el.style.transition = 'none';
+    sw.el.style.transform = 'translateX(' + dx + 'px) rotate(' + (dx / 28) + 'deg)';
+    sw.el.classList.toggle('swipe-r', dx > 60); sw.el.classList.toggle('swipe-l', dx < -60);
+  });
+  const endSwipe = () => {
+    if (!sw) return; const s = sw; sw = null;
+    if (!s.on) return;
+    swipeBlock = true; setTimeout(() => { swipeBlock = false; }, 400);
+    if (Math.abs(s.dx) > 100) cardAct(s.dx > 0 ? 'known' : 'again');
+    else { s.el.style.transition = 'transform .2s ease'; s.el.style.transform = ''; s.el.classList.remove('swipe-r', 'swipe-l'); }
+  };
+  document.addEventListener('pointerup', endSwipe);
+  document.addEventListener('pointercancel', endSwipe);
+
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-act]'); if (!b) return;
+    if (b.dataset.act === 'flip' && swipeBlock) { swipeBlock = false; return; }
     const act = b.dataset.act, set = active();
     switch (act) {
       case 'tab':
@@ -1416,9 +1471,10 @@ input[type="text"], input[type="number"] { min-height: 52px; }
         ui.docMsg = 'Text hinzugefügt. Neue Lernsets nutzen ihn. Die Zusammenfassung kannst du oben aktualisieren.'; ui.docErr = false; render(); break;
       }
       case 'flip': { const c = document.getElementById('card'); if (c) c.classList.toggle('is-flipped'); break; }
-      case 'known': { const d = set && deckOf(set); if (d && fc && fc.queue.length) { d.known = d.known || {}; d.known[fc.queue.shift()] = true; save(); render(); } break; }
-      case 'again': if (fc && fc.queue.length) { const i = fc.queue.shift(); fc.queue.splice(Math.min(3, fc.queue.length), 0, i); render(); } break;
-      case 'skip': if (fc && fc.queue.length > 1) { fc.queue.push(fc.queue.shift()); render(); } break;
+      case 'known': cardAct('known'); break;
+      case 'card-back': cardBack(); break;
+      case 'again': cardAct('again'); break;
+      case 'skip': if (fc && fc.queue.length > 1) cardAct('skip'); break;
       case 'qskip': if (qz && !qz.finished && qz.picked === null && qz.run.length - qz.i > 1) { qz.run.push(qz.run.splice(qz.i, 1)[0]); render(); } break;
       case 'cards-reset': { const d = set && deckOf(set); if (d) { d.known = {}; fc = null; save(); render(); } break; }
       case 'pick':
