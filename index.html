@@ -158,6 +158,7 @@ details p { white-space: pre-line; margin: 8px 0 0; color: var(--muted); font-si
 .opt.good { background: var(--good-soft); border-color: var(--good); color: var(--good); font-weight: 600; }
 .opt.bad { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); font-weight: 600; }
 .opt.dim { opacity: .55; }
+.pr-col .opt { font-size: 14px; padding: 10px 10px; min-height: 48px; overflow-wrap: anywhere; hyphens: auto; }
 .feedback { font-weight: 600; margin: 0; }
 .feedback.good { color: var(--good); }
 .feedback.bad { color: var(--bad); }
@@ -603,8 +604,11 @@ const GEN2 = (function () {
   const PRON = set('Sie Er Es Dies Dieses Dieser Diese Man Das Der Die Dort Dabei Hier Wir Ihr Ich Du');
   const VERBF = set(('ist sind war waren wird werden wurde wurden hat haben hatte hatten kann können konnte konnten muss müssen soll sollen darf dürfen gilt gelten galt bleibt bleiben blieb wirkt wirken liegt liegen lag entsteht entstehen entstand entstanden braucht brauchen brauchte benötigt benötigen enthält enthalten enthielt bildet bilden bildete bedeutet bedeuten zeigt zeigen zeigte führt führen führte dient dienen diente besteht bestehen bestand befindet befinden befand entspricht entsprechen erreicht erreichen erreichte dauert dauern dauerte kreist kreisen umkreist umkreisen gibt gab scheint scheinen erscheint erscheinen fällt fallen fiel steigt steigen stieg sinkt sinken sank wächst wachsen wuchs schützt schützen verändert verändern entwickelt entwickeln entwickelte trägt tragen trug nutzt nutzen nutzte beeinflusst beeinflussen ermöglicht ermöglichen verhindert verhindern bewegt bewegen dreht drehen nimmt nehmen nahm gibt geben wandelt wandeln erzeugt erzeugen produziert produzieren speichert speichern transportiert transportieren absorbiert absorbieren umgibt umgeben steuert steuern regelt regeln versorgt versorgen verbraucht verbrauchen liefert liefern bestimmt bestimmen verursacht verursachen umfasst umfassen erhält erhalten bekommt bekommen bietet bieten misst messen beträgt betragen heißt heißen nennt nennen bezeichnet bezeichnen verwendet verwenden setzt setzen stellt stellen hält halten lässt lassen sieht sehen wirkt findet finden fand begann beginnt beginnen endet enden endete lebt leben lebten wohnt wohnen stirbt sterben starb wurde entdeckte erfand entwickelte gründete schrieb baute erforschte formulierte beschrieb bewies konstruierte veröffentlichte begründete errichtete eroberte wählte entwarf erschuf löste löst führte brachte bringt bringen wandelte verband verbindet verbinden trennt trennen teilt teilen vermehrt vermehren wandert wandern fließt fließen strömt strömen reagiert reagieren zerfällt zerfallen schmilzt schmelzen verdampft verdampfen kondensiert kondensieren gefriert gefrieren verläuft verlaufen herrscht herrschen regiert regieren siegte verlor gewann').replace(/\s+/g, ' '));
   const NONVERB = set('nicht jedoch weit zuerst zuletzt erst meist oft jetzt statt zudem zusätzlich außerdem allerdings trotzdem dennoch gleichzeitig vorwiegend hauptsächlich überwiegend zunächst schließlich anschließend inzwischen mittlerweile außen innen unten oben sofort bereits besonders insbesondere ebenfalls nämlich übrigens sicherlich vermutlich wahrscheinlich tatsächlich eigentlich ursprünglich normalerweise ungefähr fast stets bestimmt');
-  const TRANS = set('enthält enthalten besitzt besitzen hat haben benötigt benötigen braucht brauchen nutzt nutzen verwendet verwenden produziert produzieren erzeugt erzeugen bildet bilden speichert speichern transportiert transportieren absorbiert absorbieren umgibt umgeben schützt schützen steuert steuern regelt regeln versorgt versorgen verbraucht verbrauchen liefert liefern verursacht verursachen verhindert verhindern ermöglicht ermöglichen beeinflusst beeinflussen umfasst umfassen erreicht erreichen erhält erhalten bietet bieten misst messen nimmt nehmen wandelt wandeln gibt geben setzt setzen löst lösen verbindet verbinden trennt trennen teilt teilen schafft schaffen sendet senden bestimmt bestimmen unterscheidet unterscheiden benutzt benutzen zeigt zeigen führt entwickelt entwickeln');
+  const TRANS = set('enthält enthalten besitzt besitzen hat haben benötigt benötigen braucht brauchen nutzt nutzen verwendet verwenden produziert produzieren erzeugt erzeugen bildet bilden speichert speichern transportiert transportieren absorbiert absorbieren umgibt umgeben schützt schützen steuert steuern regelt regeln versorgt versorgen verbraucht verbrauchen liefert liefern verursacht verursachen verhindert verhindern ermöglicht ermöglichen beeinflusst beeinflussen umfasst umfassen erreicht erreichen erhält erhalten bietet bieten misst messen nimmt nehmen wandelt wandeln gibt geben setzt setzen löst lösen verbindet verbinden trennt trennen teilt teilen schafft schaffen sendet senden bestimmt bestimmen unterscheidet unterscheiden benutzt benutzen zeigt zeigen führt entwickelt entwickeln katalysiert katalysieren hemmt hemmen aktiviert aktivieren reguliert regulieren fördert fördern bindet binden spaltet spalten synthetisiert synthetisieren oxidiert oxidieren reduziert reduzieren überträgt übertragen codiert codieren kodiert kodieren hydrolysiert hydrolysieren aktivieren blockiert blockieren steigert steigern senkt senken');
+  const GENERIC = set('Schritt Schritte Prozess Prozesse Zyklus Umlauf Verhältnis Form Weg Art Teil Zeit Fall Wert Zahl Menge Ende Anfang Ergebnis System Möglichkeit Beispiel Folge Grund Ziel Rolle Ebene Reihe Bereich Zustand Stelle Vorgang Verlauf Funktion Wirkung Einheit Aufgabe Bedeutung Hinweis Fähigkeit Eigenschaft Veränderung Entwicklung');
   const CREATE = set('entdeckte erfand entwickelte gründete schrieb baute erforschte formulierte beschrieb bewies konstruierte veröffentlichte begründete errichtete eroberte entwarf erschuf stellte entdeckt erfunden gewann besiegte unterzeichnete verkündete führte leitete');
+  Object.keys(TRANS).forEach(k => { VERBF[k] = 1; });
+  Object.keys(CREATE).forEach(k => { VERBF[k] = 1; });
   const PARTICLES = set('auf ab an aus ein mit vor nach statt zu um zurück zusammen weg fort bei fest frei hinzu heraus hinein her hin dar dazu');
   const BAD_GLOSS = set('Beispiel Beispiele Hinweis Achtung Tipp Merke Fazit Zusammenfassung Wichtig Vorsicht Anmerkung Quelle Quellen Aufgabe Aufgaben Frage Fragen Lösung Info Notiz Note Definition Ergebnis Vorteil Vorteile Nachteil Nachteile Ziel Ziele');
 
@@ -885,12 +889,12 @@ const GEN2 = (function () {
         const q = time ? 'Wie lange ' + pm.verb.toLowerCase() + ' ' + npLower(pm.subj) + (tailIsClause ? tail : '') + '?'
           : 'Wie viel' + (/^(Prozent|%)$/.test(unit) ? ' ' : (/e[ns]?$/.test(unit) || /^(Meter|Kilometer|Grad|Kilogramm|Liter|Euro|Millionen|Milliarden)$/.test(unit) ? ' ' : ' ')) + unit + (tail && !tailIsClause ? ' ' + tail : '') + ' ' + pm.verb.toLowerCase() + ' ' + npLower(pm.subj) + '?';
         const ans = m[1] + ' ' + unit;
-        made = add(Object.assign({}, base, { type: 'qty', w: 8.5, cards: [{ kind: 'frage', q: q, a: ans + (tailIsClause && time ? tail : '') + '.' }], quiz: { q: q, ans: ans, atype: 'numunit' } }));
+        made = add(Object.assign({}, base, { type: 'qty', w: 8.5, cards: [{ kind: 'frage', q: q, a: uc1(ans) + '.' }], quiz: { q: q, ans: ans, atype: 'numunit' } }));
       }
 
       // --- Eigenschaften mit Verb
       if (!made && pm && !pm.front && TRANS[pm.verb.toLowerCase()] && subjOk(pm.subj) && !startsAnaph) {
-        const sp = splitParticle(cutClause(pm.rest));
+        const sp = splitParticle(cutClause(pm.rest).replace(/^(dagegen|dabei|ebenfalls|auch|dann|nur|vor allem|zudem|außerdem|ebenso|hingegen|stattdessen|zusätzlich|insbesondere|meist|oft|häufig|dadurch|ebenso|ferner|zugleich|gleichzeitig|besonders)\s+/i, ''));
         if (sp.obj.split(' ').length >= 2 && sp.obj.length <= 110 && !/^(nicht|kein)\b/.test(sp.obj)) {
           const q = 'Was ' + pm.verb.toLowerCase() + ' ' + npLower(pm.subj) + (sp.part ? ' ' + sp.part : '') + '?';
           made = add(Object.assign({}, base, { type: 'prop', w: 7, cards: [{ kind: 'frage', q: q, a: uc1(sp.obj) + '.' }], quiz: { q: q, ans: uc1(sp.obj), atype: 'phrase', group: 'prop' } }));
@@ -906,6 +910,9 @@ const GEN2 = (function () {
           made = qaItem(base, 'where', 'Was ' + q2[2] + ' ' + lc1(q2[1]) + '?', uc1(cutClause(q2[3])));
         else if ((q2 = /^([A-ZÄÖÜ][^,]{2,50}?)\s+(liegt|liegen|befindet sich|befinden sich)\s+((?:zwischen|hinter|neben|vor|über|unter|auf|in|im|am|an|bei|nahe)\s+.+)$/.exec(body)) && subjOk(q2[1]) && !startsAnaph)
           made = qaItem(base, 'where', 'Wo ' + q2[2] + ' ' + npLower(q2[1]) + '?', uc1(cutClause(q2[3])));
+        else if ((q2 = /^([A-ZÄÖÜ][^,]{2,50}?)\s+(läuft|laufen|findet|finden|entsteht|entstehen|kommt|kommen|lebt|leben|wächst|wachsen|wird|werden|wurde|wurden)\s+((?:in|im|an|am|auf|bei|innerhalb|außerhalb|unter|zwischen|nahe)\s+[^,]+?)(?:\s+(ab|statt|vor|gebildet|hergestellt|produziert|gespeichert|gebaut|synthetisiert|abgebaut|gelagert))?(?:,.*)?$/.exec(body.replace(/^(.*?\s(?:ab|statt|vor))\s+(?:und|sowie|oder)\s.*$/, '$1'))) && subjOk(q2[1]) && !startsAnaph
+                 && ({ läuft: 'ab', laufen: 'ab', findet: 'statt', finden: 'statt', kommt: 'vor', kommen: 'vor' }[q2[2]] ? q2[4] === { läuft: 'ab', laufen: 'ab', findet: 'statt', finden: 'statt', kommt: 'vor', kommen: 'vor' }[q2[2]] : (/^(wird|werden|wurde|wurden)$/.test(q2[2]) ? !!q2[4] : true)))
+          made = qaItem(base, 'where', 'Wo ' + q2[2] + ' ' + npLower(q2[1]) + (q2[4] ? ' ' + q2[4] : '') + '?', uc1(cutClause(q2[3])));
         else if ((q2 = /^([A-ZÄÖÜ][^,]{2,50}?)\s+(dient|dienen)\s+(.+)$/.exec(body)) && subjOk(q2[1]) && !startsAnaph)
           made = qaItem(base, 'serve', 'Wozu ' + q2[2] + ' ' + npLower(q2[1]) + '?', uc1(cutClause(q2[3])));
       }
@@ -965,7 +972,7 @@ const GEN2 = (function () {
     return items;
 
     // ----- lokale Helfer (nutzen X) -----
-    function causeA(conn, rest) { return conn.toLowerCase() === 'denn' ? rest : 'weil ' + rest; }
+    function causeA(conn, rest) { return (conn.toLowerCase() === 'denn' && !/^(sie|er|es)\b/i.test(rest)) ? rest : 'weil ' + rest; }
     function ev1(t) { return t.replace(/[.!?]+$/, ''); }
     function cutTrail(s) { const c = cutClause(s); return ''; }
     function defItem(base, subj, pred, q, revQ, swapped, ansOverride, w, subjForGroup, verb) {
@@ -977,7 +984,9 @@ const GEN2 = (function () {
       X.defs.push({ term: subj, pred: pred });
       return add(it);
     }
+    function trimCoord(a) { const mm = /^(.*?)\s+(?:und|sowie)\s+([a-zäöüß]+)\s.*$/.exec(a); if (mm && isVerbTok(mm[2], 1)) return mm[1]; const m2 = /^(.*?)\s+(?:und|sowie)\s+[a-zäöüß]+(?:t|et|en)\s+(?:(?:der|die|das|den|dem|an|in|auf|mit|zu|aus|von|für|über|unter|bei|nach|als|durch)\s|[A-ZÄÖÜ]).*$/.exec(a); return m2 ? m2[1] : a; }
     function qaItem(base, group, q, a) {
+      a = trimCoord(a);
       return add(Object.assign({}, base, { type: 'qa', w: 7, cards: [{ kind: 'frage', q: q, a: a + '.' }], quiz: { q: q, ans: a, atype: 'phrase', group: group } }));
     }
     function whoFact(t, body) {
@@ -1017,6 +1026,10 @@ const GEN2 = (function () {
       s -= Math.abs(txt.length - ans.length) / 6;
       if (isCap(txt) === cap) s += 1;
       if (X.entity && X.entity[stem(clean(ans))] && X.entity[o.key]) s += 2.5;
+      const shp = w => (/-/.test(w) ? 1 : 0) + (/\d/.test(w) ? 1 : 0) + (/[A-ZÄÖÜ]{2,}|[a-zäöü][A-Z]/.test(w) ? 1 : 0);
+      if (shp(ans) > 0) s += shp(txt) > 0 ? 2.5 : -1.5; else if (shp(txt) > 0) s -= 0.8;
+      if (GENERIC[txt] && !GENERIC[ans]) s -= 4;
+      if (X.topN && o.n >= X.topN && o.words === 1 && !(X.topN && o.key === ak)) s -= 2.5;
       const suf = SUFS.find(x => ans.toLowerCase().endsWith(x));
       if (suf && txt.toLowerCase().endsWith(suf)) s += 1.5;
       s += Math.min(2, Math.log2(1 + o.n)) * 0.8;
@@ -1119,7 +1132,7 @@ const GEN2 = (function () {
     const tk = body.split(' ');
     tk.forEach((w, i) => {
       const c = clean(w);
-      if (!isCap(c) || c.length < 4 || STOP[c.toLowerCase()]) return;
+      if (!isCap(c) || c.length < 4 || STOP[c.toLowerCase()] || GENERIC[c]) return;
       const term = X.terms[stem(c)]; if (!term) return;
       if (i === 0 && !(term.n >= 2)) return;
       cands.push({ w: c, k: 'term', sc: 2 + Math.min(4, Math.log2(1 + term.n) * 1.5) + (term.defd ? 2 : 0) + Math.min(c.length, 12) / 12 });
@@ -1174,6 +1187,7 @@ const GEN2 = (function () {
     const items = extract(X);
     // Begriffe: Wichtigkeit
     X.termList = termPool(X);
+    { const ns = X.termList.map(o => o.n).sort((a, b) => b - a); X.topN = Math.max(4, ns[2] || 0); }
     X.nameTerms = X.termList.filter(o => o.words >= 2 || /^[A-ZÄÖÜ][a-zäöüß]+$/.test(o.text));
     const nameKeys = {}; X.names.forEach(nm => { nm.split(' ').forEach(w => { nameKeys[stem(clean(w))] = 1; }); });
     if (X.names.length) { X.nameTerms = X.termList.filter(o => o.words >= 2 || nameKeys[o.key]); if (X.nameTerms.length < 6) X.nameTerms = X.termList; }
@@ -1193,7 +1207,7 @@ const GEN2 = (function () {
     const clozeItems = [];
     S.forEach((s, si) => {
       const base = { si: si, src: s.t, terms: termKeysOf(s.t, terms), type: 'cloze', cards: [], quiz: null };
-      if (/^(Sie|Er|Es|Dies|Dieser|Diese|Dieses|Dort|Dabei)\s/.test(s.t)) return;
+      if (/^(Sie|Er|Es|Dies|Dieser|Diese|Dieses|Dort|Dabei|Deshalb|Daher|Darum|Dadurch|Damit|Dafür|Dazu|Danach|Somit|Folglich|Außerdem|Zudem|Dann|Dennoch|Trotzdem|Jedoch|Allerdings|Hierbei|Hierfür|Dagegen|Ebenso|Auch)\s/.test(s.t)) return;
       const specs = clozeSpecs(X, base);
       if (!specs.length) return;
       const it = Object.assign({}, base, { clozes: specs, w: 3 });
@@ -1731,9 +1745,10 @@ const GEN2 = (function () {
     summary: '<svg viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h9"/></svg>',
     cards: '<svg viewBox="0 0 24 24"><rect x="3.5" y="6" width="14" height="12" rx="2"/><path d="M7 3.5h13.5V15"/></svg>',
     quiz: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.7.4-1.1.9-1.1 1.8M12 16.8v.1"/></svg>',
+    practice: '<svg viewBox="0 0 24 24"><path d="M4 20l4.2-1 10-10a2 2 0 0 0-2.8-2.8l-10 10L4 20zM14.5 7.5l2 2"/></svg>',
     chat: '<svg viewBox="0 0 24 24"><path d="M4.5 6.5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H10l-4.5 3.5V16.5a2 2 0 0 1-1-1.7z"/></svg>'
   };
-  const TABS = [['summary', 'Überblick'], ['cards', 'Lernkarten'], ['quiz', 'Quiz'], ['chat', 'Chat']];
+  const TABS = [['summary', 'Überblick'], ['cards', 'Lernkarten'], ['quiz', 'Quiz'], ['practice', 'Üben'], ['chat', 'Chat']];
   const KIND_FRONT = { frage: 'Frage', ereignis: 'Ereignis', ursache: 'Information', info: 'Information', vergleich: 'Vergleich', luecke: 'Lückentext', vokabel: 'Vokabel' };
   const KIND_BACK = { frage: 'Antwort', ereignis: 'Darauf folgt', ursache: 'Erklärung', info: 'Bedeutung', vergleich: 'Unterschied', luecke: 'Fehlendes Wort', vokabel: 'Übersetzung' };
   const labelFront = c => c.kind === 'ereignis' ? (c.dir === 'davor' ? 'Ereignis · Was geschah davor?' : 'Ereignis · Was geschah danach?') : (KIND_FRONT[c.kind] || 'Frage');
@@ -1745,6 +1760,197 @@ const GEN2 = (function () {
       const on = ui.view === 'study' && ui.tab === t[0];
       return '<button class="tab" type="button" data-act="tab" data-tab="' + t[0] + '" aria-current="' + on + '">' + ICON[t[0]] + t[1] + '</button>';
     }).join('');
+  }
+  /* ===== Üben: Tippen, Zuordnen, Wahr oder falsch ===== */
+  let pr = null;
+  const PR_ROUND = 10;
+  const prPlain = s => String(s || '').replace(/\n[\s\S]*$/, '').replace(/[.!]+$/, '').trim();
+  const prNorm = s => String(s || '').toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/^(der|die|das|ein|eine|el|la|los|las|un|una|the|a|an|le|les|il|lo) /, '');
+  function prLev(a, b) {
+    const m = a.length, n = b.length; if (!m) return n; if (!n) return m;
+    let prev = []; for (let j = 0; j <= n; j++) prev[j] = j;
+    for (let i = 1; i <= m; i++) { const cur = [i]; for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); prev = cur; }
+    return prev[n];
+  }
+  const PR_STOP = new Set('der die das den dem des ein eine einer einem einen und oder aber ist sind war wird werden mit von zu zur zum im in am an auf aus bei für als wie auch nicht sich es er sie wir ihr dass weil dann'.split(' '));
+  // 'ok' = richtig, 'close' = richtig mit Tippfehler, 'part' = sinngemäß, 'no' = falsch
+  function prCheck(typed, answer) {
+    const t = prNorm(typed); if (!t) return 'no';
+    const alts = String(answer).split(/\s*[;/]\s*/).filter(Boolean);
+    let best = 'no';
+    alts.forEach(alt => {
+      const a = prNorm(alt.replace(/\([^)]*\)/g, ''));
+      if (!a) return;
+      if (t === a) { best = 'ok'; return; }
+      if (best === 'ok') return;
+      const tol = a.length <= 4 ? 0 : a.length <= 9 ? 1 : 2;
+      if (prLev(t, a) <= tol) { best = 'close'; return; }
+      const aw = a.split(' ').filter(w => w.length > 2 && !PR_STOP.has(w));
+      if (aw.length >= 3) {
+        const tw = t.split(' ');
+        const hit = aw.filter(w => tw.some(x => x === w || (w.length > 5 && prLev(x, w) <= 1))).length;
+        if (hit / aw.length >= 0.7 && best === 'no') best = 'part';
+      }
+    });
+    return best;
+  }
+  const prQ = c => String(c.q || '').trim();
+  function prTypeItems(d) {
+    const out = [];
+    d.cards.forEach((c, i) => {
+      if (c.kind === 'ereignis') return;
+      const a = prPlain(c.a); if (!a) return;
+      const words = a.split(' ').length;
+      if (c.kind === 'vokabel') { out.push({ i: i, q: prQ(c), a: a.split('\n')[0] }); return; }
+      if (words > 8 || a.length > 70) return;
+      if (/^Was geschah/.test(c.q)) return;
+      out.push({ i: i, q: prQ(c), a: a });
+    });
+    return out;
+  }
+  function prMatchPairs(d) {
+    const out = [], seen = {};
+    let ym;
+    d.cards.forEach(c => {
+      let l = '', r = '';
+      const a = prPlain(c.a).replace(/\s*\n.*$/, '');
+      if (c.kind === 'info') { const m = /^Was (?:ist|bedeutet|sind|bedeuten) (.+)\?$/.exec(prQ(c)); if (m) { l = m[1].replace(/^(der|die|das|ein|eine) /i, m2 => m2); r = a; } }
+      else if (c.kind === 'vokabel') { l = prQ(c); r = a.split(';')[0].trim(); }
+      else if (c.kind === 'frage' && (ym = /^Was geschah (?:im Jahr |in |um )?(\d{3,4})\?$/.exec(prQ(c)))) { l = ym[1]; r = a.replace(new RegExp(ym[1]), '…'); if (r.length > 120) r = ''; }
+      else if (c.kind === 'frage' && !/\n/.test(prQ(c)) && prQ(c).split(' ').length <= 9 && /\?$/.test(prQ(c)) && a.split(' ').length <= 10) { l = prQ(c).replace(/\?$/, ''); r = a; }
+      if (!l || !r || l.length > 70 || r.length > 120 || seen[l.toLowerCase()] || seen[r.toLowerCase()]) return;
+      seen[l.toLowerCase()] = 1; seen[r.toLowerCase()] = 1; out.push({ l: l, r: r });
+    });
+    return out;
+  }
+  function prTfItems(d) {
+    const out = [];
+    d.quiz.forEach(q => {
+      if (!q.options || q.options.length < 2) return;
+      const right = q.options[q.answer], wrong = q.options.filter((o, i) => i !== q.answer);
+      const truth = Math.random() < 0.5;
+      const shown = truth ? right : wrong[Math.floor(Math.random() * wrong.length)];
+      out.push({ q: q.q, shown: shown, truth: truth, right: right, why: q.why || '' });
+    });
+    return out;
+  }
+  function prStart(d, mode, only) {
+    let items;
+    if (mode === 'type') items = shuffle(only || prTypeItems(d)).slice(0, PR_ROUND);
+    else if (mode === 'tf') items = shuffle(only || prTfItems(d)).slice(0, PR_ROUND);
+    else {
+      const pairs = shuffle(only || prMatchPairs(d)).slice(0, 15), rounds = [];
+      for (let i = 0; i < pairs.length; i += 5) { const g = pairs.slice(i, i + 5); if (g.length >= 3 || !rounds.length) rounds.push(g); else rounds[rounds.length - 1] = rounds[rounds.length - 1].concat(g); }
+      items = rounds;
+    }
+    pr = { deckId: d.id, mode: mode, items: items, idx: 0, score: 0, total: 0, missed: [], fb: null, hint: false, m: null };
+    if (mode === 'match') prMatchRound();
+  }
+  function prMatchRound() {
+    const g = pr.items[pr.idx];
+    pr.m = { L: shuffle(g.map((p, i) => i)), R: shuffle(g.map((p, i) => i)), selL: null, done: {}, wrongL: null, wrongR: null, first: {} };
+  }
+  const prLines = s => esc(s).replace(/\n/g, '<br>');
+  const prBar = () => { const n = pr.items.length; return '<div class="progress" aria-hidden="true"><i style="width:' + Math.round(100 * pr.idx / Math.max(1, n)) + '%"></i></div>'; };
+  function practiceTabHTML(set) {
+    if (!set.decks.length) return noDeckHTML();
+    if (set.decks.length > 1 && !ui.picked[set.id]) return pickerHTML(set);
+    const d = deckOf(set);
+    if (pr && pr.deckId !== d.id) pr = null;
+    return '<div class="stack">' + flashHTML() + deckBarHTML(set, d) + (pr ? (pr.idx >= pr.items.length ? prEndHTML(d) : prRunHTML(d)) : prMenuHTML(d)) + '</div>';
+  }
+  function prMenuHTML(d) {
+    const nT = prTypeItems(d).length, nM = prMatchPairs(d).length, nF = d.quiz.length;
+    const row = (m, title, text, ok, need) => '<button class="btn block" type="button" data-act="pr-mode" data-m="' + m + '"' + (ok ? '' : ' disabled') + ' style="text-align:left;height:auto;padding:14px 16px;flex-direction:column;align-items:flex-start;gap:4px"><strong>' + title + '</strong><span class="msg" style="margin:0">' + (ok ? text : need) + '</span></button>';
+    return '<div class="panel stack"><h2 style="font-size:20px">Anders üben</h2><p class="msg">Hier übst du aktiv: Du erinnerst dich selbst, statt nur zu erkennen. Das bleibt meist besser hängen als Karten und Quiz.</p>' +
+      row('type', 'Tippen', 'Antworten selbst eintippen (' + nT + ' Aufgaben). Kleine Tippfehler sind okay.', nT >= 1, 'In diesem Lernset gibt es keine Karten mit kurzer Antwort.') +
+      row('match', 'Zuordnen', 'Begriffe und Erklärungen verbinden (' + nM + ' Paare).', nM >= 3, 'Dafür braucht es mindestens drei passende Karten (Begriff und Erklärung).') +
+      row('tf', 'Wahr oder falsch', 'Aussagen prüfen, die aus deinen Quizfragen entstehen (' + nF + ' Fragen).', nF >= 1, 'Dieses Lernset enthält keine Quizfragen.') + '</div>';
+  }
+  function prRunHTML(d) {
+    const n = pr.items.length, it = pr.items[pr.idx];
+    const top = '<div class="row" style="justify-content:space-between"><span class="chip">' + (pr.mode === 'match' ? 'Runde ' : 'Aufgabe ') + (pr.idx + 1) + ' von ' + n + '</span><button class="btn small" type="button" data-act="pr-menu">Beenden</button></div>' + prBar();
+    if (pr.mode === 'type') {
+      let body = '<div class="panel stack"><div class="label" style="margin:0">' + esc(it.i != null && d.cards[it.i] ? labelFront(d.cards[it.i]) : 'Frage') + '</div><p style="font-size:19px;line-height:1.45;margin:0">' + prLines(it.q) + '</p>';
+      if (!pr.fb) {
+        const a = it.a.split(/\s*;\s*/)[0];
+        body += '<input type="text" id="pr-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Deine Antwort" aria-label="Deine Antwort">' +
+          (pr.hint ? '<p class="msg" style="margin:0">Tipp: beginnt mit „' + esc(a.charAt(0)) + '“, ' + a.replace(/\s+/g, ' ').split(' ').length + (a.split(' ').length === 1 ? ' Wort, ' + a.length + ' Buchstaben' : ' Wörter') + '</p>' : '') +
+          '<div class="row"><button class="btn primary" type="button" data-act="pr-check">Prüfen</button>' + (pr.hint ? '' : '<button class="btn" type="button" data-act="pr-hint">Tipp</button>') + '<button class="btn" type="button" data-act="pr-skip">Weiß ich nicht</button></div>';
+      } else {
+        const ok = pr.fb.res !== 'no', lab = { ok: 'Richtig!', close: 'Richtig, kleiner Tippfehler.', part: 'Sinngemäß richtig.', no: 'Nicht ganz.' }[pr.fb.res];
+        body += '<div class="panel" style="background:var(--' + (ok ? 'good' : 'bad') + '-soft);border-color:var(--' + (ok ? 'good' : 'bad') + ')"><strong>' + lab + '</strong>' + (pr.fb.typed ? '<p class="msg" style="margin:6px 0 0">Du: ' + esc(pr.fb.typed) + '</p>' : '') + '<p style="margin:6px 0 0"><b>Richtig:</b> ' + esc(it.a) + '</p></div>' +
+          '<div class="row"><button class="btn primary" type="button" data-act="pr-next">Weiter</button>' + (ok ? '' : '<button class="btn" type="button" data-act="pr-override">Als richtig werten</button>') + '</div>';
+      }
+      return top + body + '</div>';
+    }
+    if (pr.mode === 'tf') {
+      let body = '<div class="panel stack"><div class="label" style="margin:0">Stimmt diese Antwort?</div><p style="font-size:19px;line-height:1.45;margin:0">' + prLines(it.q) + '</p><div class="panel" style="background:var(--accent-soft);border-color:var(--accent)"><b>' + esc(it.shown) + '</b></div>';
+      if (!pr.fb) body += '<div class="row"><button class="btn good" type="button" data-act="pr-tf" data-v="1" style="flex:1">Wahr</button><button class="btn bad" type="button" data-act="pr-tf" data-v="0" style="flex:1">Falsch</button></div>';
+      else {
+        const ok = pr.fb.ok;
+        body += '<div class="panel" style="background:var(--' + (ok ? 'good' : 'bad') + '-soft);border-color:var(--' + (ok ? 'good' : 'bad') + ')"><strong>' + (ok ? 'Richtig!' : 'Leider falsch.') + '</strong><p style="margin:6px 0 0">' + (it.truth ? 'Die Aussage stimmt.' : 'Die Aussage stimmt nicht. Richtig wäre: <b>' + esc(it.right) + '</b>') + '</p>' + (it.why ? '<p class="msg" style="margin:6px 0 0">' + esc(it.why) + '</p>' : '') + '</div><button class="btn primary block" type="button" data-act="pr-next">Weiter</button>';
+      }
+      return top + body + '</div>';
+    }
+    // match
+    const g = it, M = pr.m;
+    const left = M.L.map(i => {
+      const dn = M.done[i], sel = M.selL === i, bad = M.wrongL === i;
+      return '<button type="button" class="opt' + (dn ? ' good dim' : '') + (bad ? ' bad' : '') + (sel ? '" style="border-color:var(--accent);background:var(--accent-soft)' : '') + '" data-act="pr-L" data-i="' + i + '"' + (dn ? ' disabled' : '') + ' aria-pressed="' + sel + '">' + esc(g[i].l) + '</button>';
+    }).join('');
+    const right = M.R.map(i => {
+      const dn = M.done[i], bad = M.wrongR === i;
+      return '<button type="button" class="opt' + (dn ? ' good dim' : '') + (bad ? ' bad' : '') + '" data-act="pr-R" data-i="' + i + '"' + (dn ? ' disabled' : '') + '>' + esc(g[i].r) + '</button>';
+    }).join('');
+    const all = Object.keys(M.done).length === g.length;
+    return top + '<div class="panel stack"><p class="msg" style="margin:0">Tippe links einen Begriff an und rechts die passende Erklärung.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start"><div class="label" style="margin:0">Frage oder Begriff</div><div class="label" style="margin:0">Passende Antwort</div><div class="stack pr-col" style="gap:8px;min-width:0">' + left + '</div><div class="stack pr-col" style="gap:8px;min-width:0">' + right + '</div></div>' +
+      (all ? '<button class="btn primary block" type="button" data-act="pr-next">' + (pr.idx + 1 >= n ? 'Fertig' : 'Nächste Runde') + '</button>' : '') + '</div>';
+  }
+  function prEndHTML(d) {
+    const pct = pr.total ? Math.round(100 * pr.score / pr.total) : 0;
+    const msg = pct >= 90 ? 'Sehr stark!' : pct >= 70 ? 'Gut gemacht.' : pct >= 40 ? 'Ein guter Anfang, wiederhole die Fehler.' : 'Das braucht noch Übung, das ist normal.';
+    const miss = pr.missed.slice(0, 12).map(m => '<li style="margin-bottom:6px"><b>' + esc(m.l) + '</b><br><span class="msg">' + esc(m.r) + '</span></li>').join('');
+    return '<div class="panel stack"><h2 style="font-size:22px">' + pr.score + ' von ' + pr.total + ' richtig (' + pct + ' %)</h2><p class="msg">' + msg + '</p>' +
+      (pr.missed.length ? '<div class="label">Das solltest du wiederholen</div><ul style="padding-left:18px;margin:0">' + miss + '</ul>' : '') +
+      (pr.missed.length ? '<button class="btn primary block" type="button" data-act="pr-wrongs">Nur die Fehler üben</button>' : '') +
+      '<button class="btn block' + (pr.missed.length ? '' : ' primary') + '" type="button" data-act="pr-again">Neue Runde</button><button class="btn block" type="button" data-act="pr-menu">Andere Übung wählen</button></div>';
+  }
+  function prRecord(ok, it) { pr.total++; if (ok) pr.score++; else pr.missed.push(pr.mode === 'tf' ? { l: it.q, r: it.right, raw: it } : { l: it.q || it.l, r: it.a || it.r, raw: it }); }
+  function prAct(act, b) {
+    const set = active(); if (!set) return; const d = deckOf(set);
+    const it = pr && pr.items ? pr.items[pr.idx] : null;
+    switch (act) {
+      case 'pr-mode': prStart(d, b.dataset.m); break;
+      case 'pr-menu': pr = null; break;
+      case 'pr-again': prStart(d, pr.mode); break;
+      case 'pr-wrongs': { const raws = pr.missed.map(m => m.raw).filter(Boolean); const mode = pr.mode; if (mode === 'tf') { const qs = {}; raws.forEach(r => { qs[r.q] = 1; }); prStart(d, mode, prTfItems(d).filter(x => qs[x.q])); } else prStart(d, mode, raws); break; }
+      case 'pr-hint': if (pr) pr.hint = true; break;
+      case 'pr-check': {
+        if (!pr || pr.fb || !it) return; const inp = document.getElementById('pr-input'); const typed = inp ? inp.value.trim() : '';
+        if (!typed) { if (inp) inp.focus(); return; }
+        const res = prCheck(typed, it.a); pr.fb = { res: res, typed: typed }; prRecord(res !== 'no', it); break;
+      }
+      case 'pr-skip': if (pr && !pr.fb && it) { pr.fb = { res: 'no', typed: '' }; prRecord(false, it); } break;
+      case 'pr-override': if (pr && pr.fb && pr.fb.res === 'no') { pr.fb.res = 'part'; pr.score++; pr.missed.pop(); } break;
+      case 'pr-tf': { if (!pr || pr.fb || !it) return; const ans = b.dataset.v === '1', ok = ans === it.truth; pr.fb = { ok: ok }; prRecord(ok, it); break; }
+      case 'pr-next': {
+        if (!pr) return; pr.idx++; pr.fb = null; pr.hint = false;
+        if (pr.mode === 'match' && pr.idx < pr.items.length) prMatchRound();
+        break;
+      }
+      case 'pr-L': { const M = pr && pr.m; if (!M) return; const i = +b.dataset.i; if (M.done[i]) return; M.selL = i; M.wrongL = M.wrongR = null; break; }
+      case 'pr-R': {
+        const M = pr && pr.m; if (!M || M.selL == null) return; const i = +b.dataset.i; if (M.done[i]) return;
+        const g = pr.items[pr.idx];
+        if (i === M.selL) { M.done[i] = true; if (!M.first[i]) { pr.total++; pr.score++; } M.selL = null; M.wrongL = M.wrongR = null; }
+        else { if (!M.first[M.selL]) { M.first[M.selL] = 1; pr.total++; pr.missed.push({ l: g[M.selL].l, r: g[M.selL].r, raw: g[M.selL] }); } M.first[i] = M.first[i] || 0; M.wrongL = M.selL; M.wrongR = i; }
+        break;
+      }
+    }
+    render();
+    if (pr && pr.mode === 'type' && !pr.fb && pr.idx < pr.items.length) { const inp = document.getElementById('pr-input'); if (inp) inp.focus(); }
   }
   function render() {
     if (ui.tab === 'chat' && !smp) ui.tab = 'summary';
@@ -1761,6 +1967,7 @@ const GEN2 = (function () {
     ttl.textContent = set.title;
     if (ui.tab === 'summary') viewEl.innerHTML = summaryHTML(set);
     else if (ui.tab === 'cards') viewEl.innerHTML = cardsTabHTML(set);
+    else if (ui.tab === 'practice') viewEl.innerHTML = practiceTabHTML(set);
     else if (ui.tab === 'chat') viewEl.innerHTML = chatHTML(set);
     else viewEl.innerHTML = quizTabHTML(set);
   }
@@ -1832,8 +2039,8 @@ const GEN2 = (function () {
       return '<div class="deckrow' + (d.id === set.deckId ? ' active' : '') + '">' + nameHTML('deck', d.id, d.name, 'h3') +
         '<div class="chips">' + (d.cards.length ? '<span class="chip">' + d.cards.length + ' Karten</span>' : '') + (d.quiz.length ? '<span class="chip">' + d.quiz.length + ' Fragen</span>' : '') + (d.cards.length ? '<span class="chip">' + known + ' gewusst</span>' : '') + (d.best != null ? '<span class="chip">Bestwert ' + d.best + '/' + d.quiz.length + '</span>' : '') + '</div>' +
         (d.wish ? '<p class="msg">Wunsch: ' + esc(d.wish) + '</p>' : '') +
-        '<div class="row">' + (d.cards.length ? '<button class="btn primary small" type="button" data-act="deck-open" data-to="cards" data-id="' + d.id + '">Lernkarten</button>' : '') +
-        (d.quiz.length ? '<button class="btn small' + (d.cards.length ? '' : ' primary') + '" type="button" data-act="deck-open" data-to="quiz" data-id="' + d.id + '">Quiz</button>' : '') +
+        '<div class="row">' + (ui.tab === 'practice' ? '<button class="btn primary small" type="button" data-act="deck-open" data-to="practice" data-id="' + d.id + '">Üben</button>' : (d.cards.length ? '<button class="btn primary small" type="button" data-act="deck-open" data-to="cards" data-id="' + d.id + '">Lernkarten</button>' : '') +
+        (d.quiz.length ? '<button class="btn small' + (d.cards.length ? '' : ' primary') + '" type="button" data-act="deck-open" data-to="quiz" data-id="' + d.id + '">Quiz</button>' : '')) +
         renBtn('deck', d.id) + '<button class="btn small' + (sure ? ' bad' : '') + '" type="button" data-act="deck-del" data-id="' + d.id + '">' + (sure ? 'Wirklich löschen?' : 'Löschen') + '</button></div></div>';
     }).join('');
   }
@@ -2140,6 +2347,7 @@ const GEN2 = (function () {
   });
 
   document.addEventListener('keydown', e => {
+    if (e.target && e.target.id === 'pr-input' && e.key === 'Enter') { e.preventDefault(); prAct('pr-check', e.target); return; }
     if (!e.target || e.target.id !== 'ren-input') return;
     if (e.key === 'Enter') { e.preventDefault(); saveRename(); } else if (e.key === 'Escape') { ui.edit = null; render(); }
   });
@@ -2227,8 +2435,8 @@ const GEN2 = (function () {
         ui.view = 'newdeck'; render(); goTop(); break;
       case 'deck-open':
         if (!set) return;
-        set.deckId = b.dataset.id; ui.picked[set.id] = true; save(); fc = null; qz = null;
-        ui.view = 'study'; ui.tab = b.dataset.to; ui.flash = ''; render(); goTop(); break;
+        set.deckId = b.dataset.id; ui.picked[set.id] = true; save(); fc = null; qz = null; pr = null;
+        ui.view = 'study'; ui.tab = ui.tab === 'practice' && ui.view === 'study' ? 'practice' : b.dataset.to; ui.flash = ''; render(); goTop(); break;
       case 'deck-switch': if (set) { ui.picked[set.id] = false; render(); goTop(); } break;
       case 'deck-del':
         if (!set) return;
@@ -2250,6 +2458,7 @@ const GEN2 = (function () {
       }
       case 'ren-cancel': ui.edit = null; render(); break;
       case 'ren-save': saveRename(); break;
+      case 'pr-mode': case 'pr-menu': case 'pr-again': case 'pr-wrongs': case 'pr-hint': case 'pr-check': case 'pr-skip': case 'pr-override': case 'pr-tf': case 'pr-next': case 'pr-L': case 'pr-R': prAct(act, b); break;
       case 'src-tog': { const i = +b.dataset.i; ui.form.src = ui.form.src || {}; ui.form.src[i] = ui.form.src[i] === false ? true : false; srcRefresh(); break; }
       case 'src-all': ui.form.src = {}; srcRefresh(); break;
       case 'setn': {
